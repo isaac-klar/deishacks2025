@@ -1,11 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Data Visualization</title>
+    <style>
+        /* General styling for the page */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e8f2f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center horizontally */
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #1e3a8a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Form container */
+        #file-upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        /* Label styling */
+        label {
+            font-size: 16px;
+            color: #4a5568;
+            text-align: center; /* Center the label */
+            margin-bottom: 5px;
+            width: 100%; /* Ensures the label takes the full width */
+        }
+
+        /* General Button Styles (applied to all buttons) */
+        .custom-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            width: 100%; /* Make all buttons 100% width */
+            transition: background-color 0.3s ease;
+            border: none;
+            box-sizing: border-box; /* Include padding and border in width */
+        }
+
+        .custom-button:hover {
+            background-color: #2563eb;
+        }
+
+        /* Hide default file input */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Select Styling to Match Button Appearance */
+        select.custom-select {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            background-color: #3b82f6;
+            color: white;
+            width: 100%; /* Make select 100% width */
+            transition: border-color 0.3s ease;
+            text-align: center; /* Center text */
+            appearance: none; /* Removes default arrow */
+            box-sizing: border-box; /* Include padding and border in width */
+            text-align-last: center; /* Ensure the selected text is centered */
+        }
+
+        /* Remove default arrow and additional styling */
+        select.custom-select::-ms-expand {
+            display: none; /* Remove the dropdown arrow in Internet Explorer */
+        }
+
+        /* Multi-event selection styling */
+        #event_selection {
+            margin-top: 15px;
+            padding-top: 10px;
+        }
+
+        #event_selection ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        #event_selection li {
+            background-color: #5ee5f7;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 5px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        /* Responsive design for smaller screens */
+        @media screen and (max-width: 768px) {
+            #file-upload-form {
+                width: 90%;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Waltham Chamber of Commerce Event Data Visualization</h1>
+    <form id="file-upload-form" action="/visualize" method="post" enctype="multipart/form-data">
+        <!-- File Upload with Custom Button -->
+        <label for="file" class="custom-button">
+            Choose File
+        </label>
+        <input type="file" id="file" name="file" required onchange="handleFileUpload()">
+
+        <!-- File Name Display -->
+        <p id="file-name" style="font-size: 16px; color: #4a5568;"></p>
+
+        <!-- Query Selection with Custom Styling -->
+        <div class="custom-select-wrapper" style="text-align: center;">
+            <label for="query">Select Query:</label>
+            <select id="query" name="query" class="custom-select" required>
+                <option value="Attended">Attended</option>
+                <option value="Member Status">Member Status</option>
+                <option value="Sales">Sales</option>
+            </select>
+        </div>
+
+        <!-- Multi-Event Selection -->
+        <div id="event_selection" style="display: none;">
+            <label for="events">Events for Comparison:</label>
+            <ul id="events"></ul>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="custom-button">Generate Visualization</button>
+    </form>
+
     <script>
         async function handleFileUpload() {
             const fileInput = document.getElementById('file');
             const file = fileInput.files[0];
+            const fileNameDisplay = document.getElementById('file-name');
+            
+            // Display the file name below the file input
+            if (file) {
+                fileNameDisplay.textContent = `Selected file: ${file.name}`;
+            }
+
             const formData = new FormData();
             formData.append('file', file);
 
@@ -17,47 +172,21 @@
             const data = await response.json();
 
             const eventSelection = document.getElementById('event_selection');
-            const eventsDropdown = document.getElementById('events');
+            const eventsList = document.getElementById('events');
 
             if (data.multiple_events) {
                 eventSelection.style.display = 'block';
-                eventsDropdown.innerHTML = '';
+                eventsList.innerHTML = ''; // Clear any existing events
 
                 data.events.forEach(event => {
-                    const option = document.createElement('option');
-                    option.value = event;
-                    option.textContent = event;
-                    eventsDropdown.appendChild(option);
+                    const listItem = document.createElement('li');
+                    listItem.textContent = event;
+                    eventsList.appendChild(listItem);
                 });
             } else {
                 eventSelection.style.display = 'none';
             }
         }
     </script>
-</head>
-<body>
-    <h1>Upload Event Data</h1>
-    <form id="file-upload-form" action="/visualize" method="post" enctype="multipart/form-data">
-        <!-- File Upload -->
-        <label for="file">Upload Event File:</label>
-        <input type="file" id="file" name="file" required onchange="handleFileUpload()"><br><br>
-
-        <!-- Query Selection -->
-        <label for="query">Select Query:</label>
-        <select id="query" name="query" required>
-            <option value="Attended">Attended</option>
-            <option value="Member Status">Member Status</option>
-            <option value="Sales">Sales</option>
-        </select><br><br>
-
-        <!-- Multi-Event Selection -->
-        <div id="event_selection" style="display: none;">
-            <label for="events">Select Events for Comparison:</label><br>
-            <select id="events" name="events" multiple></select>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit">Generate Visualization</button>
-    </form>
 </body>
 </html>

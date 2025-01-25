@@ -7,7 +7,7 @@ class EventsModeler:
         # Load data from file if provided
         if filepath:
             data = pd.read_excel(filepath)
-
+        
         # DataFrame should be loaded at this point
         if data is None:
             raise ValueError("No data provided for modeling.")

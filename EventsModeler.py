@@ -29,16 +29,33 @@ class EventsModeler:
                 plt.pie(values, labels=labels, autopct='%1.1f%%', startangle=140)
                 plt.title(f"Visualization for {query}")
             elif query == "Sales":
-                counts = data["Did you pay for this event?"].value_counts()
-                labels = ["Paid", "Unpaid"]
-                sales = 0
-                for val in counts.values():
-                    if val == "Yes":
-                        sales += 1000
-                values = counts.values
-                plt.figure(figsize=(8, 6))
-                plt.pie(values, labels=labels, autopct='%1.1f%%', startangle=140)
-                plt.title(f"Visualization for {query}")
+                member_sales = 0
+                non_member_sales = 0
+                for e in data["Are you a member of Waltham Chamber of Commerce"]:
+                    if str(e)== "Member":
+                        member_sales += 15
+                    else:
+                        non_member_sales += 20
+                
+                # Total sales
+                total_sales = member_sales + non_member_sales
+                sales_data = [member_sales, non_member_sales]
+                # Prepare data for the bar chart
+                
+                # Plot the bar chart for sales
+                plt.figure(figsize=(10, 6))
+                plt.bar(["Members", "Non-Members"], sales_data, color=["blue", "green"])
+                plt.title(f"Bar chart for {query}")
+                plt.xlabel('Membership Status')
+                plt.ylabel('Sales ($)')
+                plt.tight_layout()
+                
+                # Save the visualization
+                visualization_path = os.path.join(output_folder, f"{query.replace(' ', '_')}_bar.png")
+                plt.savefig(visualization_path)
+                plt.close()
+                
+                return visualization_path
             else:
                 raise ValueError(f"Unknown query: {query}")
 
@@ -85,21 +102,41 @@ class EventsModeler:
                 return visualization_path
 
             elif query == "Sales":
-                # Count how many people paid for each event, and multiply by $1,000
-                sales_counts = data.groupby("Event")["Did you pay for this event?"].value_counts().unstack(fill_value=0)
-                # Get only 'Yes' counts and multiply by 1000 for the dollar amount
-                sales_amount = sales_counts.get("Yes", 0) * 1000
-                plt.figure(figsize=(10, 6))
-                sales_amount.plot(kind='bar')
-                plt.title(f"Bar chart for {query} by Event")
+                # Group by Event and Membership Status and calculate the sum of sales
+                sales_data = data.groupby(['Event', 'Are you a member of Waltham Chamber of Commerce']).size().unstack(fill_value=0)
+
+                # Calculate sales for members and non-members
+                sales_data["Member Sales"] = sales_data.get("Member", 0) * 15
+                sales_data["Non-Member Sales"] = sales_data.get("Non-member", 0) * 20
+
+                # Prepare data for the bar chart
+                events = sales_data.index
+                member_sales = sales_data["Member Sales"]
+                non_member_sales = sales_data["Non-Member Sales"]
+
+                # Plot the bar chart for sales comparison across multiple events
+                width = 0.35  # Bar width
+                x = range(len(events))  # X-axis positions for the events
+
+                plt.figure(figsize=(12, 6))
+                plt.bar(x, member_sales, width, label="Members", color="blue")
+                plt.bar([p + width for p in x], non_member_sales, width, label="Non-Members", color="green")
+
+                plt.title(f"Sales Comparison by Event for {query}")
                 plt.xlabel('Event')
                 plt.ylabel('Sales ($)')
-                plt.xticks(rotation=45, ha='right')
-                plt.tight_layout()
+                plt.xticks([p + width / 2 for p in x], events, rotation=45, ha="right")
+                plt.legend()
+
+                # Save the visualization
                 visualization_path = os.path.join(output_folder, f"{query.replace(' ', '_')}_bar.png")
+                plt.tight_layout()
                 plt.savefig(visualization_path)
                 plt.close()
+
                 return visualization_path
+
+
 
 
             else:

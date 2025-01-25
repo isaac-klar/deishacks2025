@@ -1,18 +1,53 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
 import pandas as pd
 from EventsModeler import EventsModeler
+from functools import wraps
+
+
+USERNAME = 'admin'
+PASSWORD = 'admin'
 
 app = Flask(__name__)
+app.secret_key = "mtim1ZbA89NZ2sm7baMQ6d9P3ti8fE9J"
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['VISUALIZATION_FOLDER'] = 'static/'
 
 # In-memory storage for events
 events = {}
 
+def requires_login(func):
+    print("Authenticating...")
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+
+        if not 'authenticated' in session:
+            print("not logged in")
+            return redirect(url_for('login'))
+        print("logged in?")
+
+        return func(*args, **kwargs)
+    return wrapper
+
 @app.route('/')
+@requires_login
 def index():
     return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == USERNAME and password == PASSWORD:
+            session['authenticated'] = True
+            return redirect(url_for('index'))
+        else:
+            session['authenticated'] = False
+            return render_template('login.html', error="Incorrect email or password")
+
+    return render_template('login.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():

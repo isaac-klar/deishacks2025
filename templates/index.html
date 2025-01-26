@@ -1,193 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Waltham Chamber: Manage & Visualize Files</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage & Visualize Files | Waltham Chamber</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    /* =====================================
+       BACKGROUND ANIMATION
+    ===================================== */
     @keyframes gradientShift {
       0%   { background-position: 0% 50%; }
       50%  { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(-45deg, #f4f4f9, #a8edea, #fed6e3, #f4f4f9);
-      background-size: 400% 400%;
-      animation: gradientShift 12s ease infinite;
       margin: 0;
+      padding: 0;
+      background: linear-gradient(-45deg, #2c3e50, #4ca1af, #2c3e50, #4ca1af);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      color: #333;
+      color: #ecf0f1;
     }
+
+    /* =====================================
+       NAVIGATION BAR
+    ===================================== */
     nav {
-      background-color: rgba(255,255,255,0.8);
-      backdrop-filter: blur(6px);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 1rem;
+      background: rgba(44, 62, 80, 0.8);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
+
     nav .brand {
-      font-weight: 600;
-      font-size: 1.5rem;
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: #ecf0f1;
       text-decoration: none;
-      color: #333;
+      letter-spacing: 1px;
     }
+
     nav .logout-link {
-      color: #333; text-decoration: none; font-weight: 500;
-      transition: color 0.2s;
+      color: #ecf0f1;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
+
     nav .logout-link:hover {
-      color: #007bff;
+      color: #e74c3c;
     }
+
+    /* =====================================
+       PAGE TITLE
+    ===================================== */
     h1 {
-      font-size: 2rem;
+      font-size: 2.5rem;
+      color: #ecf0f1;
       text-align: center;
-      margin: 40px 0 20px;
-      font-weight: 600;
+      margin: 30px 0;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     }
+
+    /* =====================================
+       MAIN CONTAINER
+    ===================================== */
     main {
       flex: 1;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
       padding: 20px;
-      width: 100%;
     }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* =====================================
+       CARD DESIGN
+    ===================================== */
     .card {
-      background-color: rgba(255,255,255,0.9);
-      backdrop-filter: blur(6px);
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 800px;
-      padding: 20px 30px;
-      margin: 0 auto;
-      transition: transform 0.3s;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-    }
-    .top-section, .bottom-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    .box {
-      flex: 1;
-      min-width: 300px;
+      background: rgba(44, 62, 80, 0.85);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      padding: 25px 30px;
+      color: #ecf0f1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-    label {
-      font-size: 0.95rem;
-      font-weight: 500;
-      margin-bottom: 5px;
-    }
-    .custom-select {
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-      background-color: #3b82f6;
-      color: #fff;
-      appearance: none;
-      cursor: pointer;
-      font-weight: 500;
+      align-items: center;
       text-align: center;
-      transition: background-color 0.3s;
-      width: 100%;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
-    .custom-select:hover {
-      background-color: #2563eb;
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
     }
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+
+    .card h2 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      color: #ecf0f1;
     }
-    .custom-button, .upload-icon-button {
-      display: inline-block;
-      padding: 12px 24px;
-      background-color: #3b82f6;
-      color: #fff;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
+
+    /* =====================================
+       BUTTONS
+    ===================================== */
+    .custom-button, .submit-button {
+      background-color: #3498db;
+      color: white;
+      font-weight: 600;
+      padding: 12px 20px;
       border: none;
-      font-weight: 500;
-      text-align: center;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       text-decoration: none;
+      justify-content: center;
+      margin-top: 10px;
     }
-    .custom-button:hover, .upload-icon-button:hover {
-      background-color: #2563eb;
-      transform: translateY(-1px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    .custom-button:hover, .submit-button:hover {
+      background-color: #2980b9;
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
+
+    /* =====================================
+       FILE INPUT
+    ===================================== */
     input[type="file"] {
       display: none;
     }
-    .upload-icon-button {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background-color: #3b82f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      line-height: 1;
-      position: relative;
+
+    label.custom-button {
+      cursor: pointer;
     }
+
+    /* =====================================
+       SELECT BOX
+    ===================================== */
+    select.custom-select {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 10px;
+      background-color: #2980b9;
+      color: white;
+      cursor: pointer;
+      appearance: none;
+      transition: background-color 0.3s;
+      font-weight: 500;
+    }
+
+    select.custom-select:hover {
+      background-color: #2471a3;
+    }
+
+    /* =====================================
+       FILE LIST
+    ===================================== */
+    .file-list {
+      width: 100%;
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .file-list li {
+      background: rgba(236, 240, 241, 0.2);
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: background-color 0.3s;
+    }
+
+    .file-list li:hover {
+      background-color: rgba(236, 240, 241, 0.3);
+    }
+
+    .file-list li button {
+      background-color: #e74c3c;
+      color: white;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .file-list li button:hover {
+      background-color: #c0392b;
+    }
+
+    /* =====================================
+       INLINE GROUP FOR RENAME
+    ===================================== */
     .inline-group {
       display: flex;
       gap: 10px;
       align-items: center;
       width: 100%;
+      margin-top: 10px;
     }
+
     .inline-group input[type="text"] {
       flex: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
       font-size: 1rem;
-      transition: border-color 0.3s;
+      transition: background-color 0.3s;
+      background-color: rgba(255, 255, 255, 0.3);
+      color: #ecf0f1;
     }
+
     .inline-group input[type="text"]:focus {
       outline: none;
-      border-color: #3b82f6;
+      background-color: rgba(255, 255, 255, 0.4);
     }
-    #file-names {
-      font-size: 0.9rem;
-      color: #4a5568;
-      white-space: pre-line;
-    }
+
+    /* =====================================
+       FOOTER
+    ===================================== */
     footer {
       text-align: center;
-      padding: 10px;
-      background: rgba(255,255,255,0.7);
+      padding: 15px;
+      background: rgba(44, 62, 80, 0.8);
       backdrop-filter: blur(5px);
-      box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
-      margin-top: auto;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.3);
+      color: #ecf0f1;
     }
+
     footer p {
       font-size: 0.9rem;
-      color: #666;
+      margin: 0;
     }
+
+    /* =====================================
+       RESPONSIVE DESIGN
+    ===================================== */
     @media screen and (max-width: 768px) {
-      .top-section, .bottom-section {
-        flex-direction: column;
+      .container {
+        grid-template-columns: 1fr;
       }
+
       .inline-group {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+      }
+
+      .inline-group button {
+        width: 100%;
       }
     }
   </style>
@@ -198,72 +301,75 @@
     <a href="/logout" class="logout-link">Logout</a>
   </nav>
 
+  <h1>Manage &amp; Visualize Files</h1>
+
   <main>
-    <h1>Manage & Visualize Files</h1>
-    <div class="card">
-      <form id="visualize-form" action="/visualize" method="post" enctype="multipart/form-data">
-        <div class="top-section">
-          <!-- BOX 1: Existing files multi-select + rename/delete -->
-          <div class="box">
-            <label for="existing-file-select">Existing Files</label>
-            <select id="existing-file-select" name="filenames" class="custom-select" multiple size="8">
-              <!-- Populated dynamically via fetch('/files') on page load -->
-            </select>
-            <div class="inline-group">
-              <input type="text" id="new-filename" placeholder="Rename selected file..." />
-              <button type="button" class="custom-button" onclick="renameSelectedFile()">Rename</button>
-            </div>
-            <button type="button" class="custom-button" style="margin-top:8px" onclick="deleteSelectedFile()">
-              Delete Selected
-            </button>
-          </div>
+    <div class="container">
+      <!-- Manage Existing Files -->
+      <div class="card">
+        <h2>Manage Existing Files</h2>
+        <select id="existing-file-select" name="filenames" class="custom-select" multiple size="8">
+          <!-- Dynamically populated via JavaScript -->
+        </select>
 
-          <!-- BOX 2: Upload new files + query selection -->
-          <div class="box">
-            <label>Upload New File(s)</label>
-            <div class="button-row">
-              <!-- small icon button -->
-              <label for="files" class="upload-icon-button" title="Click to upload new files">
-                &#8682; <!-- or any icon you want -->
-              </label>
-              <input type="file" id="files" name="files" multiple />
-            </div>
-            <p id="file-names"></p>
-
-            <label for="query">Select Query</label>
-            <select id="query" name="query" class="custom-select" required>
-              <option value="Attended">Attended</option>
-              <option value="Member Status">Member Status</option>
-              <option value="Sales">Sales</option>
-            </select>
-          </div>
+        <div class="inline-group">
+          <input type="text" id="new-filename" placeholder="Rename selected file..." />
+          <button type="button" class="custom-button" onclick="renameSelectedFile()">Rename</button>
         </div>
 
-        <div class="bottom-section" style="margin-top:20px;">
-          <button type="submit" class="custom-button" style="margin:0 auto;">
-            Generate Visualization
-          </button>
-        </div>
-      </form>
+        <button type="button" class="custom-button" onclick="deleteSelectedFile()">🗑️ Delete Selected</button>
+      </div>
+
+      <!-- Upload New Files -->
+      <div class="card">
+        <h2>Upload New Files</h2>
+        <label for="files" class="custom-button">
+          📂 Choose Files
+          <input type="file" id="files" name="files" multiple onchange="handleFileUpload()" />
+        </label>
+        <ul id="file-names" class="file-list"></ul>
+      </div>
+
+      <!-- Visualization -->
+      <div class="card">
+        <h2>Visualize Data</h2>
+        <select id="query" name="query" class="custom-select" required>
+          <option value="Attended">📊 Attended</option>
+          <option value="Member Status">🔑 Member Status</option>
+          <option value="Sales">💰 Sales</option>
+        </select>
+        <button type="button" class="submit-button" onclick="generateVisualization()">Generate Visualization</button>
+      </div>
     </div>
   </main>
 
   <footer>
-    <p>© 2023 Waltham Chamber of Commerce. All rights reserved.</p>
+    <p>© 2025 Waltham Chamber of Commerce. All rights reserved.</p>
   </footer>
 
   <script>
-    // On page load, fetch the existing files
-    window.addEventListener('DOMContentLoaded', () => {
+    // On page load, fetch existing files
+    document.addEventListener('DOMContentLoaded', () => {
       refreshFiles();
     });
 
+    // Retrieve /files and populate multi-select
     async function refreshFiles() {
       try {
         const response = await fetch('/files');
+        if (!response.ok) throw new Error('Failed to fetch files.');
         const files = await response.json();
         const existingFileSelect = document.getElementById('existing-file-select');
         existingFileSelect.innerHTML = '';
+
+        if (files.length === 0) {
+          const option = document.createElement('option');
+          option.textContent = 'No files available.';
+          option.disabled = true;
+          existingFileSelect.appendChild(option);
+          return;
+        }
+
         files.forEach(fname => {
           const option = document.createElement('option');
           option.value = fname;
@@ -272,34 +378,79 @@
         });
       } catch (err) {
         console.error("Error loading files:", err);
+        alert('Error loading files. Please try again later.');
       }
     }
 
-    // Display chosen file names
+    // Display chosen file names for new uploads
     document.getElementById('files').addEventListener('change', e => {
       const files = e.target.files;
       const fileNamesDisplay = document.getElementById('file-names');
+      fileNamesDisplay.innerHTML = ''; // Clear previous entries
+
       if (files.length > 0) {
-        let names = Array.from(files).map(f => f.name).join('\n');
-        fileNamesDisplay.textContent = `Selected file(s):\n${names}`;
-      } else {
-        fileNamesDisplay.textContent = '';
+        Array.from(files).forEach(file => {
+          const li = document.createElement('li');
+          li.textContent = file.name;
+          fileNamesDisplay.appendChild(li);
+        });
       }
     });
 
-    // Rename
+    // Handle file uploads
+    async function handleFileUpload() {
+      const fileInput = document.getElementById('files');
+      const files = fileInput.files;
+      const formData = new FormData();
+
+      if (files.length === 0) {
+        alert('No files selected for upload.');
+        return;
+      }
+
+      Array.from(files).forEach(file => {
+        formData.append('files', file);
+      });
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Upload failed.');
+
+        const data = await response.json();
+        if (data.success) {
+          alert('Files uploaded successfully.');
+          fileInput.value = ''; // Reset file input
+          document.getElementById('file-names').innerHTML = ''; // Clear file names list
+          refreshFiles(); // Refresh existing files list
+        } else {
+          throw new Error(data.error || 'Upload failed.');
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert('Error uploading files: ' + err.message);
+      }
+    }
+
+    // Rename selected file
     async function renameSelectedFile() {
       const fileSelect = document.getElementById('existing-file-select');
       const newFilenameInput = document.getElementById('new-filename');
-      const selectedOption = fileSelect.selectedOptions[0];
-      if (!selectedOption) {
-        alert("No file selected to rename.");
+      const selectedOptions = Array.from(fileSelect.selectedOptions);
+
+      if (selectedOptions.length !== 1) {
+        alert("Please select exactly one file to rename.");
         return;
       }
-      const oldFilename = selectedOption.value;
+
+      const oldFilename = selectedOptions[0].value;
       const newFilename = newFilenameInput.value.trim();
+
       if (!newFilename) {
-        alert("Enter a new filename.");
+        alert("Please enter a new filename.");
         return;
       }
 
@@ -312,46 +463,99 @@
           method: 'POST',
           body: formData
         });
+
+        if (!res.ok) throw new Error('Rename request failed.');
+
         const data = await res.json();
         if (data.success) {
-          alert(`Renamed ${oldFilename} to ${newFilename}.`);
+          alert(`Renamed from "${oldFilename}" to "${newFilename}"`);
           newFilenameInput.value = '';
           refreshFiles();
         } else {
-          alert("Error: " + data.error);
+          throw new Error(data.error || 'Rename failed.');
         }
       } catch (err) {
         console.error("Rename error:", err);
+        alert('Error renaming file: ' + err.message);
       }
     }
 
-    // Delete
+    // Delete selected file(s)
     async function deleteSelectedFile() {
       const fileSelect = document.getElementById('existing-file-select');
-      const selectedOption = fileSelect.selectedOptions[0];
-      if (!selectedOption) {
-        alert("No file selected to delete.");
+      const selectedOptions = Array.from(fileSelect.selectedOptions);
+
+      if (selectedOptions.length === 0) {
+        alert("Please select at least one file to delete.");
         return;
       }
-      const filename = selectedOption.value;
 
-      const formData = new FormData();
-      formData.append('filename', filename);
+      if (!confirm(`Are you sure you want to delete ${selectedOptions.length} file(s)?`)) {
+        return;
+      }
 
       try {
-        const res = await fetch('/delete_file', {
+        const deletePromises = selectedOptions.map(async (option) => {
+          const formData = new FormData();
+          formData.append('filename', option.value);
+
+          const res = await fetch('/delete_file', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!res.ok) throw new Error(`Failed to delete ${option.value}`);
+          const data = await res.json();
+
+          if (!data.success) throw new Error(data.error || `Failed to delete ${option.value}`);
+        });
+
+        await Promise.all(deletePromises);
+        alert('Selected file(s) deleted successfully.');
+        refreshFiles();
+      } catch (err) {
+        console.error("Delete error:", err);
+        alert('Error deleting files: ' + err.message);
+      }
+    }
+
+    // Generate visualization
+    async function generateVisualization() {
+      const query = document.getElementById('query').value;
+      const fileSelect = document.getElementById('existing-file-select');
+      const selectedFiles = Array.from(fileSelect.selectedOptions).map(opt => opt.value);
+
+      if (selectedFiles.length === 0) {
+        alert('Please select at least one file to visualize.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('query', query);
+      selectedFiles.forEach(file => formData.append('filenames', file));
+
+      try {
+        const response = await fetch('/visualize', {
           method: 'POST',
           body: formData
         });
-        const data = await res.json();
-        if (data.success) {
-          alert(`Deleted file: ${filename}`);
-          refreshFiles();
+
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.url) {
+            window.location.href = data.url;
+          } else {
+            throw new Error(data.error || 'Visualization failed.');
+          }
         } else {
-          alert("Error: " + data.error);
+          const errorText = await response.text();
+          throw new Error(errorText || 'Visualization failed.');
         }
       } catch (err) {
-        console.error("Delete error:", err);
+        console.error("Visualization error:", err);
+        alert('Error generating visualization: ' + err.message);
       }
     }
   </script>

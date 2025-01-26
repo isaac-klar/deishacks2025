@@ -8,7 +8,7 @@ USERNAME = 'admin'
 PASSWORD = 'admin'
 
 app = Flask(__name__)
-app.secret_key = "SUPER_SECRET_KEY_HERE"
+app.secret_key = "SUPERSUPERSECRET2025!"
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['VISUALIZATION_FOLDER'] = 'static/'
 
@@ -28,7 +28,7 @@ def requires_login(func):
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         uname = request.form.get('username')
@@ -37,7 +37,7 @@ def login():
             session['authenticated'] = True
             return redirect(url_for('index'))
         else:
-            return render_template('login.html', error="Incorrect username or password")
+            return render_template('login.html', error="Incorrect username or password.")
     return render_template('login.html')
 
 @app.route('/logout')
@@ -54,24 +54,24 @@ def list_files():
 
 @app.route('/upload', methods=['POST'])
 @requires_login
-def upload():
-    """Stores new files in 'uploads/'."""
+def upload_files():
+    """Handles new file uploads into 'uploads/'."""
     if 'files' not in request.files:
-        return jsonify({"success": False, "error": "No 'files' field"}), 400
+        return jsonify({"success": False, "error": "No 'files' found"}), 400
 
     files = request.files.getlist('files')
     if not files:
         return jsonify({"success": False, "error": "Empty file list"}), 400
 
-    saved = []
+    saved_files = []
     for f in files:
         if f.filename:
             path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
             f.save(path)
-            saved.append(f.filename)
+            saved_files.append(f.filename)
 
-    if saved:
-        return jsonify({"success": True, "files": saved})
+    if saved_files:
+        return jsonify({"success": True, "files": saved_files})
     else:
         return jsonify({"success": False, "error": "No valid filenames"}), 400
 
@@ -79,7 +79,7 @@ def upload():
 @requires_login
 def visualize():
     """
-    Collect new + existing files => pass to EventsModeler => single or multi chart.
+    Gather new + existing files => pass to EventsModeler => produce single or multi chart.
     """
     query = request.form.get('query')
     new_files = request.files.getlist('files')
@@ -91,14 +91,14 @@ def visualize():
     # Load newly uploaded
     for f in new_files:
         if f.filename:
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
-            f.save(filepath)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+            f.save(path)
             try:
-                df = pd.read_excel(filepath)
+                df = pd.read_excel(path)
                 dataframes.append(df)
                 labels.append(f.filename)
             except Exception as e:
-                print(f"Error reading new file {f.filename}: {e}")
+                print("Error reading new file:", f.filename, e)
 
     # Load existing
     for fname in existing_files:
@@ -109,14 +109,23 @@ def visualize():
                 dataframes.append(df)
                 labels.append(fname)
             except Exception as e:
-                print(f"Error reading existing file {fname}: {e}")
+                print("Error reading existing file:", fname, e)
 
     if not dataframes:
         return "No valid files found.", 400
 
-    modeler = EventsModeler()
-    chart_filename = modeler.model(dataframes, labels, query, app.config['VISUALIZATION_FOLDER'])
-    return render_template('results.html', chart_filename=chart_filename)
+    try:
+        model = EventsModeler()
+        chart_filename = model.model(
+        dataframes=dataframes,
+        labels=labels,
+        query=query,
+        output_folder=app.config['VISUALIZATION_FOLDER']
+        )
+        chart_url = url_for('static', filename=chart_filename)
+        return jsonify({"success": True, "url": chart_url})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 @app.route('/delete_file', methods=['POST'])
 @requires_login
@@ -147,7 +156,7 @@ def rename_file():
     new_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
 
     if os.path.exists(new_path):
-        return jsonify({"success": False, "error": "File with that name already exists"}), 400
+        return jsonify({"success": False, "error": "File with new name already exists"}), 400
 
     if os.path.exists(old_path):
         try:
@@ -158,5 +167,5 @@ def rename_file():
     else:
         return jsonify({"success": False, "error": "Old file does not exist"}), 404
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

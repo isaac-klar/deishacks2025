@@ -11,14 +11,16 @@
     }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(-45deg, #f4f4f9, #a8edea, #fed6e3, #f4f4f9);
+      background: linear-gradient(-45deg, #fed6e3, #f4f4f9, #a8edea, #fdfaf3);
       background-size: 400% 400%;
       animation: gradientShift 12s ease infinite;
       margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+      color: #333;
     }
     h1 {
       margin-top: 40px; font-size: 2rem; color: #333; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 1.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+      text-transform: uppercase; letter-spacing: 1.5px; 
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
     }
     img {
       max-width: 70%; height: auto; margin: 30px 0;
@@ -31,15 +33,20 @@
     a.back-link {
       text-decoration: none; font-weight: 500; color: #3b82f6; background-color: #ffffffcc;
       padding: 10px 20px; border-radius: 8px; transition: background-color 0.3s, color 0.3s;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
     }
     a.back-link:hover {
       background-color: #2563eb; color: #fff;
     }
     footer {
-      text-align: center; padding: 10px; background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(5px); box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
-      width: 100%; margin-top: auto;
+      text-align: center;
+      padding: 10px;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+      width: 100%;
+      margin-top: auto;
     }
     footer p {
       font-size: 0.9rem; color: #666;
@@ -48,11 +55,13 @@
 </head>
 <body>
   <h1>Event Visualization</h1>
-  <img src="{{ url_for('static', filename=chart_filename) }}" alt="Chart Visualization">
+  <!-- 'chart_filename' is returned by the model (e.g. "Attended_Multi.png") -->
+  <img src="{{ url_for('static', filename=chart_filename) }}" alt="Chart Visualization" />
+
   <a href="/" class="back-link">Go Back</a>
 
   <footer>
-    <p>© 2023 Waltham Chamber of Commerce. All rights reserved.</p>
+    <p>© 2025 Waltham Chamber of Commerce. All rights reserved.</p>
   </footer>
 </body>
 </html>

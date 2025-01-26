@@ -1,192 +1,497 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Data Visualization</title>
-    <style>
-        /* General styling for the page */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #e8f2f8;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Center horizontally */
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Waltham Chamber of Commerce: Data Visualization</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    /* ========== RESET & GLOBAL ========== */
+    * {
+      box-sizing: border-box; margin: 0; padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      color: #333;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-        h1 {
-            font-size: 28px;
-            color: #1e3a8a;
-            margin-bottom: 30px;
-            text-align: center;
-        }
+    /* ========== NAVBAR ========== */
+    nav {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav .brand {
+      font-weight: 600; font-size: 1.5rem; color: #333; text-decoration: none;
+    }
+    nav .logout-link {
+      color: #333; text-decoration: none; font-weight: 500; transition: color 0.2s;
+    }
+    nav .logout-link:hover {
+      color: #007bff;
+    }
 
-        /* Form container */
-        #file-upload-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 500px;
-            width: 100%;
-        }
+    /* ========== PAGE TITLE ========== */
+    h1 {
+      font-size: 2rem; color: #333; text-align: center;
+      margin: 40px 0 20px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1.5px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+    }
 
-        /* Label styling */
-        label {
-            font-size: 16px;
-            color: #4a5568;
-            text-align: center; /* Center the label */
-            margin-bottom: 5px;
-            width: 100%; /* Ensures the label takes the full width */
-        }
+    /* ========== MAIN CONTAINER ========== */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+    }
 
-        /* General Button Styles (applied to all buttons) */
-        .custom-button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #3b82f6;
-            color: white;
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
-            cursor: pointer;
-            width: 100%; /* Make all buttons 100% width */
-            transition: background-color 0.3s ease;
-            border: none;
-            box-sizing: border-box; /* Include padding and border in width */
-        }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
 
-        .custom-button:hover {
-            background-color: #2563eb;
-        }
+    .card {
+      background-color: #ffffffcc;
+      backdrop-filter: blur(5px);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      padding: 20px 30px;
+      margin: 0 auto;
+      flex: 1;
+      min-width: 320px;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+    }
 
-        /* Hide default file input */
-        input[type="file"] {
-            display: none;
-        }
+    .card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #444;
+    }
 
-        /* Select Styling to Match Button Appearance */
-        select.custom-select {
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            background-color: #3b82f6;
-            color: white;
-            width: 100%; /* Make select 100% width */
-            transition: border-color 0.3s ease;
-            text-align: center; /* Center text */
-            appearance: none; /* Removes default arrow */
-            box-sizing: border-box; /* Include padding and border in width */
-            text-align-last: center; /* Ensure the selected text is centered */
-        }
+    /* ========== FORM & INPUT ========== */
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+    label {
+      font-size: 1rem;
+      color: #333;
+      font-weight: 500;
+      margin-bottom: 5px;
+      display: inline-block;
+    }
 
-        /* Remove default arrow and additional styling */
-        select.custom-select::-ms-expand {
-            display: none; /* Remove the dropdown arrow in Internet Explorer */
-        }
+    /* Hide default file input */
+    input[type="file"] {
+      display: none;
+    }
 
-        /* Multi-event selection styling */
-        #event_selection {
-            margin-top: 15px;
-            padding-top: 10px;
-        }
+    /* ========== BUTTON STYLES ========== */
+    .custom-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #3b82f6;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-weight: 500;
+      width: 100%;
+      max-width: 220px;
+      text-align: center;
+      text-decoration: none;
+    }
+    .custom-button:hover {
+      background-color: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
 
-        #event_selection ul {
-            list-style-type: none;
-            padding-left: 0;
-            margin-top: 10px;
-        }
+    /* ========== SELECTED FILE NAMES ========== */
+    #file-names {
+      font-size: 0.95rem;
+      color: #4a5568;
+      text-align: center;
+      white-space: pre-line;
+    }
 
-        #event_selection li {
-            background-color: #5ee5f7;
-            border-radius: 4px;
-            padding: 8px;
-            margin-bottom: 5px;
-            text-align: left;
-            font-size: 14px;
-        }
+    /* ========== DROPDOWN ========== */
+    .custom-select-wrapper {
+      width: 100%;
+      text-align: center;
+    }
+    .custom-select {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      background-color: #3b82f6;
+      color: #fff;
+      width: 100%;
+      appearance: none;
+      box-sizing: border-box;
+      cursor: pointer;
+      font-weight: 500;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .custom-select:hover {
+      background-color: #2563eb;
+    }
+    .custom-select::-ms-expand {
+      display: none;
+    }
 
-        /* Responsive design for smaller screens */
-        @media screen and (max-width: 768px) {
-            #file-upload-form {
-                width: 90%;
-                padding: 30px;
-            }
-        }
-    </style>
+    /* ========== EVENT SELECTION ========== */
+    #event_selection {
+      display: none;
+      margin-top: 15px;
+      padding-top: 10px;
+      width: 100%;
+      text-align: center;
+    }
+    #event_selection.show {
+      display: block;
+    }
+    #event_selection ul {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 10px;
+    }
+    #event_selection li {
+      background-color: #5ee5f7;
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 5px;
+      text-align: left;
+      font-size: 14px;
+      color: #333;
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+      margin-top: auto;
+    }
+    footer p {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media screen and (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .card {
+        width: 90%;
+      }
+    }
+
+    /* ========== EXTRA FIELDS FOR RENAME ========== */
+    .inline-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .inline-group input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    .inline-group input[type="text"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    /* Tooltips or instructions */
+    .instructions {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+  </style>
 </head>
 <body>
-    <h1>Waltham Chamber of Commerce Event Data Visualization</h1>
-    <form id="file-upload-form" action="/visualize" method="post" enctype="multipart/form-data">
-        <!-- File Upload with Custom Button -->
-        <label for="file" class="custom-button">
-            Choose File
-        </label>
-        <input type="file" id="file" name="file" required onchange="handleFileUpload()">
+  <nav>
+    <a href="#" class="brand">Waltham Chamber</a>
+    <a href="/logout" class="logout-link">Logout</a>
+  </nav>
 
-        <!-- File Name Display -->
-        <p id="file-name" style="font-size: 16px; color: #4a5568;"></p>
+  <main>
+    <h1>Data Visualization</h1>
+    <div class="container">
+      <!-- UPLOAD NEW FILES CARD -->
+      <div class="card">
+        <h2>Upload New File(s)</h2>
+        <p class="instructions">
+          Select one or more files from your computer. 
+          If any file has an "Event" column, you'll be able to choose events for comparison.
+        </p>
+        <form id="file-upload-form" action="/visualize" method="post" enctype="multipart/form-data">
+          <label for="files" class="custom-button">Choose File(s)</label>
+          <input type="file" id="files" name="files" multiple required onchange="handleFilesChosen()" />
+          <p id="file-names"></p>
 
-        <!-- Query Selection with Custom Styling -->
-        <div class="custom-select-wrapper" style="text-align: center;">
+          <!-- Query Selection -->
+          <div class="custom-select-wrapper">
             <label for="query">Select Query:</label>
             <select id="query" name="query" class="custom-select" required>
-                <option value="Attended">Attended</option>
-                <option value="Member Status">Member Status</option>
-                <option value="Sales">Sales</option>
+              <option value="Attended">Attended</option>
+              <option value="Member Status">Member Status</option>
+              <option value="Sales">Sales</option>
             </select>
-        </div>
+          </div>
 
-        <!-- Multi-Event Selection -->
-        <div id="event_selection" style="display: none;">
+          <!-- Multi-Event Section -->
+          <div id="event_selection">
             <label for="events">Events for Comparison:</label>
             <ul id="events"></ul>
+          </div>
+
+          <button type="submit" class="custom-button">Generate Visualization</button>
+        </form>
+      </div>
+
+      <!-- SELECT & MANAGE EXISTING FILE(S) CARD -->
+      <div class="card">
+        <h2>Use / Manage Existing File(s)</h2>
+        <p class="instructions">
+          Select previously uploaded files to visualize, or rename / delete them.
+        </p>
+        <form id="existing-file-form" action="/visualize" method="post">
+          <div class="custom-select-wrapper">
+            <label for="existing-file-select">
+              Existing Files (Ctrl/Command + Click for multiple):
+            </label>
+            <select id="existing-file-select" name="filenames" class="custom-select" multiple size="5" required>
+              <!-- Populated dynamically via fetch('/files') on page load -->
+            </select>
+          </div>
+
+          <div class="custom-select-wrapper">
+            <label for="existing-query">Select Query:</label>
+            <select id="existing-query" name="query" class="custom-select" required>
+              <option value="Attended">Attended</option>
+              <option value="Member Status">Member Status</option>
+              <option value="Sales">Sales</option>
+            </select>
+          </div>
+
+          <button type="submit" class="custom-button">Generate Visualization</button>
+        </form>
+
+        <!-- RENAME & DELETE OPTIONS -->
+        <div class="inline-group">
+          <!-- New filename input -->
+          <input type="text" id="new-filename" placeholder="Enter new file name (e.g. data_jan.xlsx)" />
+          <button class="custom-button" onclick="renameSelectedFile()">Rename</button>
         </div>
+        <button class="custom-button" style="margin-top:10px" onclick="deleteSelectedFile()">
+          Delete Selected File
+        </button>
+      </div>
+    </div>
+  </main>
 
-        <!-- Submit Button -->
-        <button type="submit" class="custom-button">Generate Visualization</button>
-    </form>
+  <footer>
+    <p>© 2023 Waltham Chamber of Commerce. All rights reserved.</p>
+  </footer>
 
-    <script>
-        async function handleFileUpload() {
-            const fileInput = document.getElementById('file');
-            const file = fileInput.files[0];
-            const fileNameDisplay = document.getElementById('file-name');
-            
-            // Display the file name below the file input
-            if (file) {
-                fileNameDisplay.textContent = `Selected file: ${file.name}`;
-            }
+  <script>
+    /**
+     * Display chosen file names in #file-names
+     */
+    function handleFilesChosen() {
+      const fileInput = document.getElementById('files');
+      const fileNamesDisplay = document.getElementById('file-names');
+      const files = fileInput.files;
+      if (files.length > 0) {
+        let names = Array.from(files).map(file => file.name).join('\n');
+        fileNamesDisplay.textContent = `Selected file(s):\n${names}`;
+      } else {
+        fileNamesDisplay.textContent = '';
+      }
+    }
 
-            const formData = new FormData();
-            formData.append('file', file);
+    /**
+     * Auto-upload to /upload to detect 'Event' column
+     */
+    async function handleFileUpload(files) {
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
 
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData,
-            });
+        const eventSelection = document.getElementById('event_selection');
+        const eventsList = document.getElementById('events');
 
-            const data = await response.json();
-
-            const eventSelection = document.getElementById('event_selection');
-            const eventsList = document.getElementById('events');
-
-            if (data.multiple_events) {
-                eventSelection.style.display = 'block';
-                eventsList.innerHTML = ''; // Clear any existing events
-
-                data.events.forEach(event => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = event;
-                    eventsList.appendChild(listItem);
-                });
-            } else {
-                eventSelection.style.display = 'none';
-            }
+        if (data.multiple_events) {
+          eventSelection.classList.add('show');
+          eventsList.innerHTML = '';
+          data.events.forEach(evt => {
+            const li = document.createElement('li');
+            li.textContent = evt;
+            eventsList.appendChild(li);
+          });
+        } else {
+          eventSelection.classList.remove('show');
         }
-    </script>
+      } catch (error) {
+        console.error('Error uploading file(s):', error);
+      }
+    }
+
+    document.getElementById('files').addEventListener('change', async (e) => {
+      const selectedFiles = e.target.files;
+      if (selectedFiles.length > 0) {
+        await handleFileUpload(selectedFiles);
+      }
+    });
+
+    /**
+     * Populate #existing-file-select on page load
+     */
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/files');
+        const files = await response.json();
+        const existingFileSelect = document.getElementById('existing-file-select');
+
+        existingFileSelect.innerHTML = '';
+        files.forEach(filename => {
+          const option = document.createElement('option');
+          option.value = filename;
+          option.textContent = filename;
+          existingFileSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error fetching existing files:', error);
+      }
+    });
+
+    /**
+     * Delete the selected file from the server
+     */
+    async function deleteSelectedFile() {
+      const fileSelect = document.getElementById('existing-file-select');
+      const selectedOptions = Array.from(fileSelect.selectedOptions);
+      if (!selectedOptions.length) {
+        alert("No file selected to delete.");
+        return;
+      }
+      // For simplicity, let's delete just the first selected file
+      const filename = selectedOptions[0].value;
+      const formData = new FormData();
+      formData.append('filename', filename);
+
+      try {
+        const response = await fetch('/delete_file', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert("File deleted: " + filename);
+          // Remove the option from the select
+          selectedOptions[0].remove();
+        } else {
+          alert("Error deleting file: " + result.error);
+        }
+      } catch (error) {
+        console.error('Delete file error:', error);
+      }
+    }
+
+    /**
+     * Rename the selected file
+     */
+    async function renameSelectedFile() {
+      const fileSelect = document.getElementById('existing-file-select');
+      const selectedOptions = Array.from(fileSelect.selectedOptions);
+      if (!selectedOptions.length) {
+        alert("No file selected to rename.");
+        return;
+      }
+      const oldFilename = selectedOptions[0].value;
+
+      const newFilenameInput = document.getElementById('new-filename');
+      const newFilename = newFilenameInput.value.trim();
+      if (!newFilename) {
+        alert("Please enter a new filename.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('old_filename', oldFilename);
+      formData.append('new_filename', newFilename);
+
+      try {
+        const response = await fetch('/rename_file', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert("File renamed from " + oldFilename + " to " + newFilename);
+          // Update the UI
+          selectedOptions[0].value = newFilename;
+          selectedOptions[0].textContent = newFilename;
+          newFilenameInput.value = "";
+        } else {
+          alert("Error renaming file: " + result.error);
+        }
+      } catch (error) {
+        console.error('Rename file error:', error);
+      }
+    }
+  </script>
 </body>
 </html>

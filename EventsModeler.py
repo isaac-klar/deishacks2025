@@ -1,189 +1,191 @@
 import os
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg')  # For headless environments
 import matplotlib.pyplot as plt
+
+# Use a built-in style that is guaranteed to work with default Matplotlib
+plt.style.use('ggplot')
 
 class EventsModeler:
     """
-    A class that creates visualizations from a single DataFrame
-    and also returns a small summary of the data for easy consumption.
+    Generates fancy charts from one or multiple XLSX files,
+    each file = a single event. If multiple => side-by-side comparison.
     """
 
-    def model_with_summary(
-        self,
-        filepath: str = None,
-        data: pd.DataFrame = None,
-        query: str = "Attended",
-        output_folder: str = "static/"
-    ):
+    def model(self, dataframes, labels=None, query="Attended", output_folder="static"):
         """
-        Returns a tuple (chart_path, summary_dict).
-        chart_path: path to the saved chart image
-        summary_dict: a dictionary with some high-level stats about the data
+        :param dataframes: list of DataFrames (each is one event).
+        :param labels:     list of event names (matching dataframes length).
+        :param query:      one of "Attended", "Member Status", or "Sales".
+        :param output_folder: directory in which to save the charts.
+        :return:           chart filename (e.g. "Attended_Multi.png").
         """
-        chart_path = self.model(filepath, data, query, output_folder)
-        summary = self.generate_summary(data, query)
-        return chart_path, summary
-
-    def model(
-        self,
-        filepath: str = None,
-        data: pd.DataFrame = None,
-        query: str = "Attended",
-        output_folder: str = "static/"
-    ) -> str:
-        """
-        Create a chart based on the query. Return path to the saved image.
-        """
-        if data is None and filepath:
-            try:
-                data = pd.read_excel(filepath)
-            except:
-                data = pd.read_csv(filepath)
-
-        if data is None:
-            raise ValueError("No DataFrame or file path provided.")
+        if not dataframes:
+            raise ValueError("No DataFrames provided.")
+        if labels and len(labels) != len(dataframes):
+            raise ValueError("labels length must match dataframes length.")
 
         os.makedirs(output_folder, exist_ok=True)
 
-        has_event_col = ("Event" in data.columns)
+        if len(dataframes) == 1:
+            # Single file => single chart
+            df = dataframes[0]
+            label = labels[0] if labels else "Event_1"
+            return self._model_single(df, label, query, output_folder)
+        else:
+            # Multiple => combine
+            combined = []
+            for i, df in enumerate(dataframes):
+                event_label = labels[i] if labels else f"Event_{i+1}"
+                temp = df.copy()
+                temp["Event"] = event_label
+                combined.append(temp)
+            merged_df = pd.concat(combined, ignore_index=True)
+            return self._model_multi(merged_df, query, output_folder)
+
+    def _model_single(self, df, label, query, output_folder):
+        """Single event chart. If multiple columns, we do 'Attended', 'Member Status', or 'Sales'."""
+        if df.empty:
+            raise ValueError(f"DataFrame for '{label}' is empty.")
+
+        safe_label = label.replace(" ", "_")
+
+        # Larger fonts for computer screens
+        title_size = 18
+        label_size = 14
+        plt.figure(figsize=(9, 7))
 
         if query == "Attended":
-            if has_event_col:
-                attendance_counts = data.groupby("Event")["Attended"].value_counts().unstack(fill_value=0)
-                plt.figure(figsize=(10, 6))
-                attendance_counts.plot(kind='bar', stacked=True)
-                plt.title("Attended by Event")
-                plt.xlabel("Event")
-                plt.ylabel("Count")
-                plt.tight_layout()
-                chart_path = os.path.join(output_folder, "Attended_bar.png")
-                plt.savefig(chart_path)
-                plt.close()
-                return chart_path
-            else:
-                counts = data["Attended"].value_counts()
-                plt.figure(figsize=(8, 6))
-                plt.pie(counts.values, labels=counts.index, autopct='%1.1f%%')
-                plt.title("Overall Attended Distribution")
-                chart_path = os.path.join(output_folder, "Attended_pie.png")
-                plt.savefig(chart_path)
-                plt.close()
-                return chart_path
+            # Pie chart of "Yes"/"No"
+            counts = df["Attended"].value_counts()
+            plt.pie(
+                counts.values,
+                labels=counts.index,
+                autopct='%1.1f%%',
+                startangle=140,
+                textprops={'fontsize': label_size}
+            )
+            plt.title(f"Attended - {label}", fontsize=title_size)
+            filename = f"Attended_{safe_label}.png"
+            plt.savefig(os.path.join(output_folder, filename), dpi=120)
+            plt.close()
+            return filename
 
         elif query == "Member Status":
             col = "Are you a member of Waltham Chamber of Commerce"
-            if has_event_col:
-                member_counts = data.groupby("Event")[col].value_counts().unstack(fill_value=0)
-                plt.figure(figsize=(10, 6))
-                member_counts.plot(kind='bar')
-                plt.title("Member Status by Event")
-                plt.xlabel("Event")
-                plt.ylabel("Count")
-                plt.tight_layout()
-                chart_path = os.path.join(output_folder, "Member_Status_bar.png")
-                plt.savefig(chart_path)
-                plt.close()
-                return chart_path
-            else:
-                counts = data[col].value_counts()
-                plt.figure(figsize=(8, 6))
-                plt.pie(counts.values, labels=counts.index, autopct='%1.1f%%')
-                plt.title("Overall Member Status")
-                chart_path = os.path.join(output_folder, "Member_Status_pie.png")
-                plt.savefig(chart_path)
-                plt.close()
-                return chart_path
+            counts = df[col].value_counts()
+            plt.pie(
+                counts.values,
+                labels=counts.index,
+                autopct='%1.1f%%',
+                startangle=140,
+                textprops={'fontsize': label_size}
+            )
+            plt.title(f"Member Status - {label}", fontsize=title_size)
+            filename = f"MemberStatus_{safe_label}.png"
+            plt.savefig(os.path.join(output_folder, filename), dpi=120)
+            plt.close()
+            return filename
 
         elif query == "Sales":
-            if has_event_col:
-                group = data.groupby(["Event", "Are you a member of Waltham Chamber of Commerce"])\
-                            .size().unstack(fill_value=0)
-                member_label = "Member"
-                non_member_label = "Non-member"
-                group["Member Sales"] = group.get(member_label, 0) * 15
-                group["Non-Member Sales"] = group.get(non_member_label, 0) * 20
+            col = "Are you a member of Waltham Chamber of Commerce"
+            member_count = (df[col] == "Member").sum()
+            non_member_count = (df[col] == "Non-member").sum()
 
-                events = group.index
-                member_sales = group["Member Sales"]
-                non_member_sales = group["Non-Member Sales"]
+            member_sales = member_count * 15
+            non_member_sales = non_member_count * 20
 
-                x = range(len(events))
-                width = 0.35
-                plt.figure(figsize=(10, 6))
-                plt.bar(x, member_sales, width, label="Members", color="blue")
-                plt.bar([p + width for p in x], non_member_sales, width, label="Non-Members", color="green")
-                plt.title("Sales Comparison by Event")
-                plt.xlabel("Event")
-                plt.ylabel("Sales ($)")
-                plt.xticks([p + width/2 for p in x], events, rotation=45, ha="right")
-                plt.legend()
-                plt.tight_layout()
-                chart_path = os.path.join(output_folder, "Sales_bar.png")
-                plt.savefig(chart_path)
-                plt.close()
-                return chart_path
-            else:
-                col = "Are you a member of Waltham Chamber of Commerce"
-                member_count = (data[col] == "Member").sum()
-                non_member_count = (data[col] == "Non-member").sum()
-                member_sales = member_count * 15
-                non_member_sales = non_member_count * 20
-
-                plt.figure(figsize=(8, 6))
-                plt.bar(["Members", "Non-Members"], [member_sales, non_member_sales], color=["blue", "green"])
-                plt.title("Overall Sales")
-                plt.xlabel("Membership")
-                plt.ylabel("Sales ($)")
-                plt.tight_layout()
-                chart_path = os.path.join(output_folder, "Sales_bar.png")
-                plt.savefig(chart_path)
-                plt.close()
-                return chart_path
+            plt.bar(["Members", "Non-Members"], [member_sales, non_member_sales], color=["#4c72b0", "#55a868"])
+            plt.title(f"Sales - {label}", fontsize=title_size)
+            plt.xlabel("Membership", fontsize=label_size)
+            plt.ylabel("Sales ($)", fontsize=label_size)
+            plt.tight_layout()
+            filename = f"Sales_{safe_label}.png"
+            plt.savefig(os.path.join(output_folder, filename), dpi=120)
+            plt.close()
+            return filename
 
         else:
             raise ValueError(f"Unknown query: {query}")
 
-    def generate_summary(self, data: pd.DataFrame, query: str) -> dict:
-        """
-        Return a short summary dictionary with info about attendance, membership, sales, etc.
-        to help non-technical folks quickly see key metrics.
-        Customize these stats as needed for your use case.
-        """
-        summary = {}
-        total_rows = len(data)
-        summary["Total Rows"] = total_rows
+    def _model_multi(self, merged_df, query, output_folder):
+        """Multi-event chart. We'll do side-by-side bars for multiple events."""
+        if merged_df.empty:
+            raise ValueError("Merged DataFrame is empty.")
+        if "Event" not in merged_df.columns:
+            raise ValueError("No 'Event' column found for multi-file logic.")
 
-        # Common columns
-        attended_col = "Attended"
-        membership_col = "Are you a member of Waltham Chamber of Commerce"
+        title_size = 18
+        label_size = 14
+        plt.figure(figsize=(12, 7))
 
-        # Attended summary
-        if attended_col in data.columns:
-            attended_count = (data[attended_col] == "Yes").sum()
-            not_attended_count = (data[attended_col] == "No").sum()
-            summary["Attended Yes"] = int(attended_count)
-            summary["Attended No"] = int(not_attended_count)
+        if query == "Attended":
+            # Group by (Event, Attended) => side by side for "Yes"/"No"
+            group = merged_df.groupby(["Event", "Attended"]).size().unstack(fill_value=0)
+            yes_vals = group.get("Yes", 0)
+            no_vals = group.get("No", 0)
 
-        # Membership summary
-        if membership_col in data.columns:
-            member_count = (data[membership_col] == "Member").sum()
-            nonmember_count = (data[membership_col] == "Non-member").sum()
-            summary["# of Members"] = int(member_count)
-            summary["# of Non-Members"] = int(nonmember_count)
+            x = range(len(group))
+            width = 0.4
+            plt.bar(x, yes_vals, width, label="Yes", color="#4c72b0")
+            plt.bar([p + width for p in x], no_vals, width, label="No", color="#c44e52")
 
-        # Sales summary
-        # Suppose each Member ticket = $15, each Non-Member = $20
-        if membership_col in data.columns:
-            if "Sales" in query:  # or always compute
-                total_member_sales = (data[membership_col] == "Member").sum() * 15
-                total_nonmember_sales = (data[membership_col] == "Non-member").sum() * 20
-                summary["Total Sales ($)"] = total_member_sales + total_nonmember_sales
-            else:
-                # We could still show a quick estimate
-                total_member_sales = (data[membership_col] == "Member").sum() * 15
-                total_nonmember_sales = (data[membership_col] == "Non-member").sum() * 20
-                summary["Potential Sales if 'Sales' query used ($)"] = total_member_sales + total_nonmember_sales
+            plt.title("Attended (Multiple Events)", fontsize=title_size)
+            plt.xlabel("Event", fontsize=label_size)
+            plt.ylabel("Count", fontsize=label_size)
+            plt.xticks([p + width/2 for p in x], group.index, rotation=45, ha="right")
+            plt.legend(fontsize=label_size)
+            plt.tight_layout()
+            filename = "Attended_Multi.png"
+            plt.savefig(os.path.join(output_folder, filename), dpi=120)
+            plt.close()
+            return filename
 
-        return summary
+        elif query == "Member Status":
+            col = "Are you a member of Waltham Chamber of Commerce"
+            group = merged_df.groupby(["Event", col]).size().unstack(fill_value=0)
+            mem_vals = group.get("Member", 0)
+            nonmem_vals = group.get("Non-member", 0)
+
+            x = range(len(group))
+            width = 0.4
+            plt.bar(x, mem_vals, width, label="Members", color="#4c72b0")
+            plt.bar([p + width for p in x], nonmem_vals, width, label="Non-Members", color="#55a868")
+
+            plt.title("Member Status (Multiple Events)", fontsize=title_size)
+            plt.xlabel("Event", fontsize=label_size)
+            plt.ylabel("Count", fontsize=label_size)
+            plt.xticks([p + width/2 for p in x], group.index, rotation=45, ha="right")
+            plt.legend(fontsize=label_size)
+            plt.tight_layout()
+            filename = "MemberStatus_Multi.png"
+            plt.savefig(os.path.join(output_folder, filename), dpi=120)
+            plt.close()
+            return filename
+
+        elif query == "Sales":
+            col = "Are you a member of Waltham Chamber of Commerce"
+            group = merged_df.groupby(["Event", col]).size().unstack(fill_value=0)
+
+            member_sales = group.get("Member", 0) * 15
+            nonmember_sales = group.get("Non-member", 0) * 20
+
+            x = range(len(group))
+            width = 0.4
+            plt.bar(x, member_sales, width, label="Members", color="#4c72b0")
+            plt.bar([p + width for p in x], nonmember_sales, width, label="Non-Members", color="#55a868")
+
+            plt.title("Sales (Multiple Events)", fontsize=title_size)
+            plt.xlabel("Event", fontsize=label_size)
+            plt.ylabel("Sales ($)", fontsize=label_size)
+            plt.xticks([p + width/2 for p in x], group.index, rotation=45, ha="right")
+            plt.legend(fontsize=label_size)
+            plt.tight_layout()
+            filename = "Sales_Multi.png"
+            plt.savefig(os.path.join(output_folder, filename), dpi=120)
+            plt.close()
+            return filename
+
+        else:
+            raise ValueError(f"Unknown query: {query}")

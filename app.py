@@ -8,7 +8,7 @@ USERNAME = 'admin'
 PASSWORD = 'admin'
 
 app = Flask(__name__)
-app.secret_key = "REPLACE_WITH_A_SECURE_KEY"
+app.secret_key = "SUPER_SECRET_KEY_HERE"
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['VISUALIZATION_FOLDER'] = 'static/'
 
@@ -16,10 +16,6 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['VISUALIZATION_FOLDER'], exist_ok=True)
 
 def requires_login(func):
-    """
-    Decorator to ensure the user is authenticated.
-    Redirects to the login page if not.
-    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         if 'authenticated' not in session:
@@ -30,16 +26,14 @@ def requires_login(func):
 @app.route('/')
 @requires_login
 def index():
-    """Renders the main page (index.html) after login."""
     return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
-    """Simple login form with predefined username/password."""
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        if username == USERNAME and password == PASSWORD:
+        uname = request.form.get('username')
+        pwd = request.form.get('password')
+        if uname == USERNAME and pwd == PASSWORD:
             session['authenticated'] = True
             return redirect(url_for('index'))
         else:
@@ -48,130 +42,93 @@ def login():
 
 @app.route('/logout')
 def logout():
-    """Logout route clears session and redirects to login."""
     session.clear()
     return redirect(url_for('login'))
 
 @app.route('/files', methods=['GET'])
 @requires_login
 def list_files():
-    """
-    Returns a JSON array of all files in the 'uploads/' folder.
-    e.g. ["file1.xlsx", "file2.xlsx"]
-    """
-    all_files = os.listdir(app.config['UPLOAD_FOLDER'])
-    return jsonify(all_files)
+    """Return a JSON array of the files in 'uploads/'."""
+    files = os.listdir(app.config['UPLOAD_FOLDER'])
+    return jsonify(files)
 
 @app.route('/upload', methods=['POST'])
 @requires_login
-def upload_files():
-    """
-    Handle multiple file uploads at once.
-    Check if any file has an 'Event' column (for multi-event selection).
-    Return JSON with { multiple_events: bool, events: [...unique events...] }
-    """
+def upload():
+    """Stores new files in 'uploads/'."""
     if 'files' not in request.files:
-        return jsonify({"multiple_events": False}), 400
+        return jsonify({"success": False, "error": "No 'files' field"}), 400
 
     files = request.files.getlist('files')
-    all_events = set()
-    multiple_events = False
+    if not files:
+        return jsonify({"success": False, "error": "Empty file list"}), 400
 
+    saved = []
     for f in files:
-        if f and f.filename != '':
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
-            f.save(filepath)
-            try:
-                df = pd.read_excel(filepath)
-                if "Event" in df.columns:
-                    unique_events = df["Event"].unique().tolist()
-                    for evt in unique_events:
-                        all_events.add(evt)
-                    multiple_events = True
-            except Exception as e:
-                print(f"Error reading file {f.filename}: {e}")
+        if f.filename:
+            path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+            f.save(path)
+            saved.append(f.filename)
 
-    if multiple_events and all_events:
-        return jsonify({"multiple_events": True, "events": sorted(list(all_events))})
+    if saved:
+        return jsonify({"success": True, "files": saved})
     else:
-        return jsonify({"multiple_events": False})
+        return jsonify({"success": False, "error": "No valid filenames"}), 400
 
 @app.route('/visualize', methods=['POST'])
 @requires_login
 def visualize():
     """
-    Creates visualizations for each selected or uploaded file (one chart per file).
-    Also computes a summary of the data for easier consumption.
+    Collect new + existing files => pass to EventsModeler => single or multi chart.
     """
     query = request.form.get('query')
-    selected_events = request.form.getlist('events')
+    new_files = request.files.getlist('files')
+    existing_files = request.form.getlist('filenames')
 
     dataframes = []
-    filenames = []
+    labels = []
 
-    # 1) Newly uploaded files
-    uploaded_files = request.files.getlist('files')
-    if uploaded_files and any(f.filename for f in uploaded_files):
-        for file in uploaded_files:
-            if file.filename:
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-                file.save(filepath)
-                try:
-                    df = pd.read_excel(filepath)
-                    if selected_events and "Event" in df.columns:
-                        df = df[df["Event"].isin(selected_events)]
-                    dataframes.append(df)
-                    filenames.append(file.filename)
-                except Exception as e:
-                    print(f"Error reading file {file.filename}: {e}")
+    # Load newly uploaded
+    for f in new_files:
+        if f.filename:
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+            f.save(filepath)
+            try:
+                df = pd.read_excel(filepath)
+                dataframes.append(df)
+                labels.append(f.filename)
+            except Exception as e:
+                print(f"Error reading new file {f.filename}: {e}")
 
-    # 2) Existing files
-    existing_files = request.form.getlist('filenames')
-    if existing_files:
-        for fname in existing_files:
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
-            if os.path.exists(filepath):
-                try:
-                    df = pd.read_excel(filepath)
-                    if selected_events and "Event" in df.columns:
-                        df = df[df["Event"].isin(selected_events)]
-                    dataframes.append(df)
-                    filenames.append(fname)
-                except Exception as e:
-                    print(f"Error reading existing file {fname}: {e}")
+    # Load existing
+    for fname in existing_files:
+        path = os.path.join(app.config['UPLOAD_FOLDER'], fname)
+        if os.path.exists(path):
+            try:
+                df = pd.read_excel(path)
+                dataframes.append(df)
+                labels.append(fname)
+            except Exception as e:
+                print(f"Error reading existing file {fname}: {e}")
 
     if not dataframes:
-        return "No valid files were provided or found.", 400
+        return "No valid files found.", 400
 
     modeler = EventsModeler()
-    chart_info_list = []
-    for i, df in enumerate(dataframes):
-        chart_path, summary = modeler.model_with_summary(
-            data=df,
-            query=query,
-            output_folder=app.config['VISUALIZATION_FOLDER']
-        )
-        chart_info_list.append({
-            "filename": filenames[i],
-            "chart_path": chart_path,
-            "summary": summary
-        })
-
-    # We pass multiple charts + summaries to results.html
-    return render_template('results.html', charts=chart_info_list)
+    chart_filename = modeler.model(dataframes, labels, query, app.config['VISUALIZATION_FOLDER'])
+    return render_template('results.html', chart_filename=chart_filename)
 
 @app.route('/delete_file', methods=['POST'])
 @requires_login
 def delete_file():
-    """Delete a file from 'uploads/'."""
     filename = request.form.get('filename')
     if not filename:
-        return jsonify({"success": False, "error": "No filename provided"}), 400
+        return jsonify({"success": False, "error": "No filename"}), 400
 
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if os.path.exists(filepath):
+    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(path):
         try:
-            os.remove(filepath)
+            os.remove(path)
             return jsonify({"success": True, "filename": filename})
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
@@ -181,10 +138,6 @@ def delete_file():
 @app.route('/rename_file', methods=['POST'])
 @requires_login
 def rename_file():
-    """
-    Renames a file in 'uploads/'.
-    Expects form data: old_filename, new_filename
-    """
     old_filename = request.form.get('old_filename')
     new_filename = request.form.get('new_filename')
     if not old_filename or not new_filename:
@@ -193,7 +146,6 @@ def rename_file():
     old_path = os.path.join(app.config['UPLOAD_FOLDER'], old_filename)
     new_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
 
-    # Basic check: if new_path already exists, we can handle collision
     if os.path.exists(new_path):
         return jsonify({"success": False, "error": "File with that name already exists"}), 400
 
@@ -206,5 +158,5 @@ def rename_file():
     else:
         return jsonify({"success": False, "error": "Old file does not exist"}), 404
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)

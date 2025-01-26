@@ -2,32 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Waltham Chamber: Manage & Visualize Files</title>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
-    /* ========== RESET & GLOBAL ========== */
-    * {
-      box-sizing: border-box;
-      margin: 0; 
-      padding: 0;
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      color: #333;
+      background: linear-gradient(-45deg, #f4f4f9, #a8edea, #fed6e3, #f4f4f9);
+      background-size: 400% 400%;
+      animation: gradientShift 12s ease infinite;
       margin: 0;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      color: #333;
     }
-
-    /* ========== NAVBAR ========== */
     nav {
-      background-color: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(5px);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background-color: rgba(255,255,255,0.8);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 1rem;
       display: flex;
       justify-content: space-between;
@@ -36,56 +32,47 @@
     nav .brand {
       font-weight: 600;
       font-size: 1.5rem;
-      color: #333;
       text-decoration: none;
+      color: #333;
     }
     nav .logout-link {
-      color: #333;
-      text-decoration: none;
-      font-weight: 500;
+      color: #333; text-decoration: none; font-weight: 500;
       transition: color 0.2s;
     }
     nav .logout-link:hover {
       color: #007bff;
     }
-
-    /* ========== PAGE TITLE ========== */
     h1 {
       font-size: 2rem;
-      color: #333;
       text-align: center;
       margin: 40px 0 20px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
     }
-
-    /* ========== MAIN CONTAINER ========== */
     main {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 100%;
       padding: 20px;
+      width: 100%;
     }
     .card {
-      background-color: #ffffffcc;
-      backdrop-filter: blur(5px);
+      background-color: rgba(255,255,255,0.9);
+      backdrop-filter: blur(6px);
       border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 800px;
       padding: 20px 30px;
       margin: 0 auto;
-      transition: transform 0.2s;
+      transition: transform 0.3s;
     }
     .card:hover {
       transform: translateY(-3px);
     }
-
-    /* ========== FORM & LAYOUT ========== */
     .top-section, .bottom-section {
       display: flex;
       flex-wrap: wrap;
@@ -98,18 +85,11 @@
       flex-direction: column;
       gap: 10px;
     }
-    .box label {
+    label {
       font-size: 0.95rem;
       font-weight: 500;
       margin-bottom: 5px;
     }
-    .instructions {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 5px;
-    }
-
-    /* ========== SELECT / MULTI-SELECT ========== */
     .custom-select {
       padding: 12px;
       border-radius: 8px;
@@ -118,7 +98,6 @@
       background-color: #3b82f6;
       color: #fff;
       appearance: none;
-      box-sizing: border-box;
       cursor: pointer;
       font-weight: 500;
       text-align: center;
@@ -128,8 +107,6 @@
     .custom-select:hover {
       background-color: #2563eb;
     }
-
-    /* ========== BUTTONS & FILE INPUT ========== */
     .button-row {
       display: flex;
       flex-wrap: wrap;
@@ -152,14 +129,11 @@
     .custom-button:hover, .upload-icon-button:hover {
       background-color: #2563eb;
       transform: translateY(-1px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    /* Hide the default file input */
     input[type="file"] {
       display: none;
     }
-
-    /* A small icon-style button for uploading */
     .upload-icon-button {
       width: 50px;
       height: 50px;
@@ -168,36 +142,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem; /* or icon size */
+      font-size: 1.4rem;
       line-height: 1;
       position: relative;
     }
-
-    /* ========== EVENT SELECTION ========== */
-    #event_selection {
-      display: none;
-      margin-top: 10px;
-      text-align: center;
-    }
-    #event_selection.show {
-      display: block;
-    }
-    #event_selection ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 10px 0;
-    }
-    #event_selection li {
-      background-color: #5ee5f7;
-      border-radius: 4px;
-      padding: 8px;
-      margin-bottom: 5px;
-      text-align: left;
-      font-size: 14px;
-      color: #333;
-    }
-
-    /* ========== RENAME / DELETE ========== */
     .inline-group {
       display: flex;
       gap: 10px;
@@ -210,6 +158,7 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 1rem;
+      transition: border-color 0.3s;
     }
     .inline-group input[type="text"]:focus {
       outline: none;
@@ -220,21 +169,18 @@
       color: #4a5568;
       white-space: pre-line;
     }
-
-    /* ========== FOOTER ========== */
     footer {
       text-align: center;
       padding: 10px;
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(5px);
       box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+      margin-top: auto;
     }
     footer p {
       font-size: 0.9rem;
       color: #666;
     }
-
-    /* ========== RESPONSIVE ========== */
     @media screen and (max-width: 768px) {
       .top-section, .bottom-section {
         flex-direction: column;
@@ -255,21 +201,16 @@
   <main>
     <h1>Manage & Visualize Files</h1>
     <div class="card">
-      <div class="instructions">
-        Select existing files or upload new files (via the upload icon).<br />
-        You can rename or delete any selected file, and pick a query to generate charts.
-      </div>
-
       <form id="visualize-form" action="/visualize" method="post" enctype="multipart/form-data">
         <div class="top-section">
           <!-- BOX 1: Existing files multi-select + rename/delete -->
           <div class="box">
             <label for="existing-file-select">Existing Files</label>
             <select id="existing-file-select" name="filenames" class="custom-select" multiple size="8">
-              <!-- Populated dynamically with /files -->
+              <!-- Populated dynamically via fetch('/files') on page load -->
             </select>
             <div class="inline-group">
-              <input type="text" id="new-filename" placeholder="Rename selected file (e.g. data_jan.xlsx)" />
+              <input type="text" id="new-filename" placeholder="Rename selected file..." />
               <button type="button" class="custom-button" onclick="renameSelectedFile()">Rename</button>
             </div>
             <button type="button" class="custom-button" style="margin-top:8px" onclick="deleteSelectedFile()">
@@ -277,15 +218,15 @@
             </button>
           </div>
 
-          <!-- BOX 2: Upload new files via an icon button, display chosen file names, query selection -->
+          <!-- BOX 2: Upload new files + query selection -->
           <div class="box">
             <label>Upload New File(s)</label>
             <div class="button-row">
               <!-- small icon button -->
               <label for="files" class="upload-icon-button" title="Click to upload new files">
-                &#8682; <!-- or any icon: could be &#128194;, &#128228;, etc. -->
+                &#8682; <!-- or any icon you want -->
               </label>
-              <input type="file" id="files" name="files" multiple onchange="handleFilesChosen()" />
+              <input type="file" id="files" name="files" multiple />
             </div>
             <p id="file-names"></p>
 
@@ -295,16 +236,8 @@
               <option value="Member Status">Member Status</option>
               <option value="Sales">Sales</option>
             </select>
-
-            <div id="event_selection">
-              <label for="events">Events for Comparison:</label>
-              <ul id="events"></ul>
-            </div>
           </div>
         </div>
-
-        <!-- Hidden input for newly uploaded files to pass to /visualize in same submission -->
-        <!-- We'll handle that in the JS by adding them to the form after auto-upload. -->
 
         <div class="bottom-section" style="margin-top:20px;">
           <button type="submit" class="custom-button" style="margin:0 auto;">
@@ -320,109 +253,53 @@
   </footer>
 
   <script>
-    // On page load, fetch existing files to populate the multi-select
-    window.addEventListener('DOMContentLoaded', async () => {
+    // On page load, fetch the existing files
+    window.addEventListener('DOMContentLoaded', () => {
+      refreshFiles();
+    });
+
+    async function refreshFiles() {
       try {
         const response = await fetch('/files');
         const files = await response.json();
         const existingFileSelect = document.getElementById('existing-file-select');
         existingFileSelect.innerHTML = '';
-        files.forEach(filename => {
+        files.forEach(fname => {
           const option = document.createElement('option');
-          option.value = filename;
-          option.textContent = filename;
+          option.value = fname;
+          option.textContent = fname;
           existingFileSelect.appendChild(option);
         });
-      } catch (error) {
-        console.error('Error fetching existing files:', error);
+      } catch (err) {
+        console.error("Error loading files:", err);
       }
-    });
+    }
 
-    // Display chosen file names when user picks new files
-    async function handleFilesChosen() {
-      const fileInput = document.getElementById('files');
+    // Display chosen file names
+    document.getElementById('files').addEventListener('change', e => {
+      const files = e.target.files;
       const fileNamesDisplay = document.getElementById('file-names');
-      const files = fileInput.files;
-
       if (files.length > 0) {
         let names = Array.from(files).map(f => f.name).join('\n');
         fileNamesDisplay.textContent = `Selected file(s):\n${names}`;
-        // Auto-upload them to detect "Event" column
-        await autoUploadFiles(files);
       } else {
         fileNamesDisplay.textContent = '';
       }
-    }
+    });
 
-    // Auto-upload the selected files to /upload so we can detect 'Event' column
-    async function autoUploadFiles(files) {
-      const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-      }
-
-      try {
-        const response = await fetch('/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await response.json();
-
-        const eventSelection = document.getElementById('event_selection');
-        const eventsList = document.getElementById('events');
-
-        if (data.multiple_events) {
-          eventSelection.classList.add('show');
-          eventsList.innerHTML = '';
-          data.events.forEach(evt => {
-            const li = document.createElement('li');
-            li.textContent = evt;
-            eventsList.appendChild(li);
-          });
-        } else {
-          eventSelection.classList.remove('show');
-        }
-
-        // Also, update the /files list since we have new files now
-        refreshExistingFiles();
-
-      } catch (error) {
-        console.error('Error uploading file(s):', error);
-      }
-    }
-
-    // Refresh the list of existing files from the server
-    async function refreshExistingFiles() {
-      try {
-        const response = await fetch('/files');
-        const files = await response.json();
-        const existingFileSelect = document.getElementById('existing-file-select');
-        existingFileSelect.innerHTML = '';
-        files.forEach(filename => {
-          const option = document.createElement('option');
-          option.value = filename;
-          option.textContent = filename;
-          existingFileSelect.appendChild(option);
-        });
-      } catch (error) {
-        console.error('Error refreshing existing files:', error);
-      }
-    }
-
-    // Rename the selected file
+    // Rename
     async function renameSelectedFile() {
       const fileSelect = document.getElementById('existing-file-select');
-      const selectedOptions = Array.from(fileSelect.selectedOptions);
-      if (!selectedOptions.length) {
+      const newFilenameInput = document.getElementById('new-filename');
+      const selectedOption = fileSelect.selectedOptions[0];
+      if (!selectedOption) {
         alert("No file selected to rename.");
         return;
       }
-      const oldFilename = selectedOptions[0].value;
-
-      const newFilenameInput = document.getElementById('new-filename');
+      const oldFilename = selectedOption.value;
       const newFilename = newFilenameInput.value.trim();
       if (!newFilename) {
-        alert("Please enter a new filename.");
+        alert("Enter a new filename.");
         return;
       }
 
@@ -431,52 +308,50 @@
       formData.append('new_filename', newFilename);
 
       try {
-        const response = await fetch('/rename_file', {
+        const res = await fetch('/rename_file', {
           method: 'POST',
           body: formData
         });
-        const result = await response.json();
-        if (result.success) {
-          alert("File renamed from " + oldFilename + " to " + newFilename);
-          newFilenameInput.value = "";
-          // Refresh the existing files list
-          await refreshExistingFiles();
+        const data = await res.json();
+        if (data.success) {
+          alert(`Renamed ${oldFilename} to ${newFilename}.`);
+          newFilenameInput.value = '';
+          refreshFiles();
         } else {
-          alert("Error renaming file: " + result.error);
+          alert("Error: " + data.error);
         }
-      } catch (error) {
-        console.error('Rename file error:', error);
+      } catch (err) {
+        console.error("Rename error:", err);
       }
     }
 
-    // Delete the selected file
+    // Delete
     async function deleteSelectedFile() {
       const fileSelect = document.getElementById('existing-file-select');
-      const selectedOptions = Array.from(fileSelect.selectedOptions);
-      if (!selectedOptions.length) {
+      const selectedOption = fileSelect.selectedOptions[0];
+      if (!selectedOption) {
         alert("No file selected to delete.");
         return;
       }
-      const filename = selectedOptions[0].value;
+      const filename = selectedOption.value;
 
       const formData = new FormData();
       formData.append('filename', filename);
 
       try {
-        const response = await fetch('/delete_file', {
+        const res = await fetch('/delete_file', {
           method: 'POST',
           body: formData
         });
-        const result = await response.json();
-        if (result.success) {
-          alert("File deleted: " + filename);
-          // Remove from the multi-select
-          selectedOptions[0].remove();
+        const data = await res.json();
+        if (data.success) {
+          alert(`Deleted file: ${filename}`);
+          refreshFiles();
         } else {
-          alert("Error deleting file: " + result.error);
+          alert("Error: " + data.error);
         }
-      } catch (error) {
-        console.error('Delete file error:', error);
+      } catch (err) {
+        console.error("Delete error:", err);
       }
     }
   </script>

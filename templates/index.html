@@ -7,6 +7,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     /* =====================================
+       CSS VARIABLES FOR COLORS AND SPACING
+    ===================================== */
+    :root {
+      --primary-color: #4ca1af;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --background-gradient: linear-gradient(-45deg, #2c3e50, #4ca1af, #2c3e50, #4ca1af);
+      --font-color: #ecf0f1;
+      --card-background: rgba(44, 62, 80, 0.85);
+      --button-bg: #3498db;
+      --button-hover-bg: #2980b9;
+      --input-bg: rgba(255, 255, 255, 0.3);
+      --input-focus-bg: rgba(255, 255, 255, 0.4);
+    }
+
+    /* =====================================
        BACKGROUND ANIMATION
     ===================================== */
     @keyframes gradientShift {
@@ -19,13 +35,13 @@
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(-45deg, #2c3e50, #4ca1af, #2c3e50, #4ca1af);
+      background: var(--background-gradient);
       background-size: 400% 400%;
       animation: gradientShift 15s ease infinite;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      color: #ecf0f1;
+      color: var(--font-color);
     }
 
     /* =====================================
@@ -47,13 +63,13 @@
     nav .brand {
       font-weight: 700;
       font-size: 1.8rem;
-      color: #ecf0f1;
+      color: var(--font-color);
       text-decoration: none;
       letter-spacing: 1px;
     }
 
     nav .logout-link {
-      color: #ecf0f1;
+      color: var(--font-color);
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s;
@@ -63,7 +79,7 @@
     }
 
     nav .logout-link:hover {
-      color: #e74c3c;
+      color: var(--accent-color);
     }
 
     /* =====================================
@@ -71,7 +87,7 @@
     ===================================== */
     h1 {
       font-size: 2.5rem;
-      color: #ecf0f1;
+      color: var(--font-color);
       text-align: center;
       margin: 30px 0;
       font-weight: 700;
@@ -103,17 +119,18 @@
        CARD DESIGN
     ===================================== */
     .card {
-      background: rgba(44, 62, 80, 0.85);
+      background: var(--card-background);
       backdrop-filter: blur(15px);
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
       padding: 25px 30px;
-      color: #ecf0f1;
+      color: var(--font-color);
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
       transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
     }
 
     .card:hover {
@@ -124,14 +141,14 @@
     .card h2 {
       font-size: 1.6rem;
       margin-bottom: 20px;
-      color: #ecf0f1;
+      color: var(--font-color);
     }
 
     /* =====================================
        BUTTONS
     ===================================== */
     .custom-button, .submit-button {
-      background-color: #3498db;
+      background-color: var(--button-bg);
       color: white;
       font-weight: 600;
       padding: 12px 20px;
@@ -146,10 +163,11 @@
       text-decoration: none;
       justify-content: center;
       margin-top: 10px;
+      width: 100%;
     }
 
     .custom-button:hover, .submit-button:hover {
-      background-color: #2980b9;
+      background-color: var(--button-hover-bg);
       transform: scale(1.05);
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
@@ -163,6 +181,7 @@
 
     label.custom-button {
       cursor: pointer;
+      justify-content: center;
     }
 
     /* =====================================
@@ -175,7 +194,7 @@
       font-size: 1rem;
       width: 100%;
       margin-top: 10px;
-      background-color: #2980b9;
+      background-color: var(--button-bg);
       color: white;
       cursor: pointer;
       appearance: none;
@@ -184,7 +203,7 @@
     }
 
     select.custom-select:hover {
-      background-color: #2471a3;
+      background-color: var(--button-hover-bg);
     }
 
     /* =====================================
@@ -218,7 +237,7 @@
     }
 
     .file-list li button {
-      background-color: #e74c3c;
+      background-color: var(--accent-color);
       color: white;
       font-size: 0.9rem;
       border: none;
@@ -250,13 +269,83 @@
       border-radius: 8px;
       font-size: 1rem;
       transition: background-color 0.3s;
-      background-color: rgba(255, 255, 255, 0.3);
+      background-color: var(--input-bg);
       color: #ecf0f1;
     }
 
     .inline-group input[type="text"]:focus {
       outline: none;
-      background-color: rgba(255, 255, 255, 0.4);
+      background-color: var(--input-focus-bg);
+    }
+
+    /* =====================================
+       MODAL STYLES
+    ===================================== */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 2000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: var(--card-background);
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 15px;
+      position: relative;
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .close {
+      color: var(--font-color);
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: var(--accent-color);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* =====================================
+       LOADING SPINNER
+    ===================================== */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid var(--button-bg);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     /* =====================================
@@ -268,7 +357,7 @@
       background: rgba(44, 62, 80, 0.8);
       backdrop-filter: blur(5px);
       box-shadow: 0 -2px 6px rgba(0,0,0,0.3);
-      color: #ecf0f1;
+      color: var(--font-color);
     }
 
     footer p {
@@ -346,6 +435,18 @@
   <footer>
     <p>© 2025 Waltham Chamber of Commerce. All rights reserved.</p>
   </footer>
+
+  <!-- Modal for Visualization -->
+  <div id="visualization-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="modal-body">
+        <h2>Visualization</h2>
+        <div id="loader" class="loader" style="display: none;"></div>
+        <img id="visualization-image" src="" alt="Chart Visualization" style="max-width: 100%; height: auto; display: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
+      </div>
+    </div>
+  </div>
 
   <script>
     // On page load, fetch existing files
@@ -534,6 +635,16 @@
       formData.append('query', query);
       selectedFiles.forEach(file => formData.append('filenames', file));
 
+      // Show modal and loader
+      const modal = document.getElementById('visualization-modal');
+      const loader = document.getElementById('loader');
+      const vizImage = document.getElementById('visualization-image');
+
+      modal.style.display = 'flex';
+      loader.style.display = 'block';
+      vizImage.style.display = 'none';
+      vizImage.src = '';
+
       try {
         const response = await fetch('/visualize', {
           method: 'POST',
@@ -545,7 +656,11 @@
         } else if (response.ok) {
           const data = await response.json();
           if (data.success && data.url) {
-            window.location.href = data.url;
+            vizImage.src = data.url + `?t=${new Date().getTime()}`; // Prevent caching
+            vizImage.onload = () => {
+              loader.style.display = 'none';
+              vizImage.style.display = 'block';
+            };
           } else {
             throw new Error(data.error || 'Visualization failed.');
           }
@@ -555,7 +670,23 @@
         }
       } catch (err) {
         console.error("Visualization error:", err);
+        loader.style.display = 'none';
         alert('Error generating visualization: ' + err.message);
+        modal.style.display = 'none';
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      const modal = document.getElementById('visualization-modal');
+      modal.style.display = 'none';
+    }
+
+    // Close modal when clicking outside the modal content
+    window.onclick = function(event) {
+      const modal = document.getElementById('visualization-modal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
       }
     }
   </script>

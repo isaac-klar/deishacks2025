@@ -1,192 +1,694 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Data Visualization</title>
-    <style>
-        /* General styling for the page */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #e8f2f8;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Center horizontally */
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage & Visualize Files | Waltham Chamber</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* =====================================
+       CSS VARIABLES FOR COLORS AND SPACING
+    ===================================== */
+    :root {
+      --primary-color: #4ca1af;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --background-gradient: linear-gradient(-45deg, #2c3e50, #4ca1af, #2c3e50, #4ca1af);
+      --font-color: #ecf0f1;
+      --card-background: rgba(44, 62, 80, 0.85);
+      --button-bg: #3498db;
+      --button-hover-bg: #2980b9;
+      --input-bg: rgba(255, 255, 255, 0.3);
+      --input-focus-bg: rgba(255, 255, 255, 0.4);
+    }
 
-        h1 {
-            font-size: 28px;
-            color: #1e3a8a;
-            margin-bottom: 30px;
-            text-align: center;
-        }
+    /* =====================================
+       BACKGROUND ANIMATION
+    ===================================== */
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-        /* Form container */
-        #file-upload-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 500px;
-            width: 100%;
-        }
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--background-gradient);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: var(--font-color);
+    }
 
-        /* Label styling */
-        label {
-            font-size: 16px;
-            color: #4a5568;
-            text-align: center; /* Center the label */
-            margin-bottom: 5px;
-            width: 100%; /* Ensures the label takes the full width */
-        }
+    /* =====================================
+       NAVIGATION BAR
+    ===================================== */
+    nav {
+      background: rgba(44, 62, 80, 0.8);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
 
-        /* General Button Styles (applied to all buttons) */
-        .custom-button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #3b82f6;
-            color: white;
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
-            cursor: pointer;
-            width: 100%; /* Make all buttons 100% width */
-            transition: background-color 0.3s ease;
-            border: none;
-            box-sizing: border-box; /* Include padding and border in width */
-        }
+    nav .brand {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: var(--font-color);
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
 
-        .custom-button:hover {
-            background-color: #2563eb;
-        }
+    nav .logout-link {
+      color: var(--font-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
 
-        /* Hide default file input */
-        input[type="file"] {
-            display: none;
-        }
+    nav .logout-link:hover {
+      color: var(--accent-color);
+    }
 
-        /* Select Styling to Match Button Appearance */
-        select.custom-select {
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            background-color: #3b82f6;
-            color: white;
-            width: 100%; /* Make select 100% width */
-            transition: border-color 0.3s ease;
-            text-align: center; /* Center text */
-            appearance: none; /* Removes default arrow */
-            box-sizing: border-box; /* Include padding and border in width */
-            text-align-last: center; /* Ensure the selected text is centered */
-        }
+    /* =====================================
+       PAGE TITLE
+    ===================================== */
+    h1 {
+      font-size: 2.5rem;
+      color: var(--font-color);
+      text-align: center;
+      margin: 30px 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
 
-        /* Remove default arrow and additional styling */
-        select.custom-select::-ms-expand {
-            display: none; /* Remove the dropdown arrow in Internet Explorer */
-        }
+    /* =====================================
+       MAIN CONTAINER
+    ===================================== */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-        /* Multi-event selection styling */
-        #event_selection {
-            margin-top: 15px;
-            padding-top: 10px;
-        }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+    }
 
-        #event_selection ul {
-            list-style-type: none;
-            padding-left: 0;
-            margin-top: 10px;
-        }
+    /* =====================================
+       CARD DESIGN
+    ===================================== */
+    .card {
+      background: var(--card-background);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      padding: 25px 30px;
+      color: var(--font-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
 
-        #event_selection li {
-            background-color: #5ee5f7;
-            border-radius: 4px;
-            padding: 8px;
-            margin-bottom: 5px;
-            text-align: left;
-            font-size: 14px;
-        }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    }
 
-        /* Responsive design for smaller screens */
-        @media screen and (max-width: 768px) {
-            #file-upload-form {
-                width: 90%;
-                padding: 30px;
-            }
-        }
-    </style>
+    .card h2 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      color: var(--font-color);
+    }
+
+    /* =====================================
+       BUTTONS
+    ===================================== */
+    .custom-button, .submit-button {
+      background-color: var(--button-bg);
+      color: white;
+      font-weight: 600;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      justify-content: center;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .custom-button:hover, .submit-button:hover {
+      background-color: var(--button-hover-bg);
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* =====================================
+       FILE INPUT
+    ===================================== */
+    input[type="file"] {
+      display: none;
+    }
+
+    label.custom-button {
+      cursor: pointer;
+      justify-content: center;
+    }
+
+    /* =====================================
+       SELECT BOX
+    ===================================== */
+    select.custom-select {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 10px;
+      background-color: var(--button-bg);
+      color: white;
+      cursor: pointer;
+      appearance: none;
+      transition: background-color 0.3s;
+      font-weight: 500;
+    }
+
+    select.custom-select:hover {
+      background-color: var(--button-hover-bg);
+    }
+
+    /* =====================================
+       FILE LIST
+    ===================================== */
+    .file-list {
+      width: 100%;
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .file-list li {
+      background: rgba(236, 240, 241, 0.2);
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: background-color 0.3s;
+    }
+
+    .file-list li:hover {
+      background-color: rgba(236, 240, 241, 0.3);
+    }
+
+    .file-list li button {
+      background-color: var(--accent-color);
+      color: white;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .file-list li button:hover {
+      background-color: #c0392b;
+    }
+
+    /* =====================================
+       INLINE GROUP FOR RENAME
+    ===================================== */
+    .inline-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .inline-group input[type="text"] {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      background-color: var(--input-bg);
+      color: #ecf0f1;
+    }
+
+    .inline-group input[type="text"]:focus {
+      outline: none;
+      background-color: var(--input-focus-bg);
+    }
+
+    /* =====================================
+       MODAL STYLES
+    ===================================== */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 2000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: var(--card-background);
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 15px;
+      position: relative;
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .close {
+      color: var(--font-color);
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: var(--accent-color);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* =====================================
+       LOADING SPINNER
+    ===================================== */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid var(--button-bg);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* =====================================
+       FOOTER
+    ===================================== */
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: rgba(44, 62, 80, 0.8);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.3);
+      color: var(--font-color);
+    }
+
+    footer p {
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    /* =====================================
+       RESPONSIVE DESIGN
+    ===================================== */
+    @media screen and (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .inline-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .inline-group button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Waltham Chamber of Commerce Event Data Visualization</h1>
-    <form id="file-upload-form" action="/visualize" method="post" enctype="multipart/form-data">
-        <!-- File Upload with Custom Button -->
-        <label for="file" class="custom-button">
-            Choose File
+  <nav>
+    <a href="#" class="brand">Waltham Chamber</a>
+    <a href="/logout" class="logout-link">Logout</a>
+  </nav>
+
+  <h1>Manage &amp; Visualize Files</h1>
+
+  <main>
+    <div class="container">
+      <!-- Manage Existing Files -->
+      <div class="card">
+        <h2>Manage Existing Files</h2>
+        <select id="existing-file-select" name="filenames" class="custom-select" multiple size="8">
+          <!-- Dynamically populated via JavaScript -->
+        </select>
+
+        <div class="inline-group">
+          <input type="text" id="new-filename" placeholder="Rename selected file..." />
+          <button type="button" class="custom-button" onclick="renameSelectedFile()">Rename</button>
+        </div>
+
+        <button type="button" class="custom-button" onclick="deleteSelectedFile()">🗑️ Delete Selected</button>
+      </div>
+
+      <!-- Upload New Files -->
+      <div class="card">
+        <h2>Upload New Files</h2>
+        <label for="files" class="custom-button">
+          📂 Choose Files
+          <input type="file" id="files" name="files" multiple onchange="handleFileUpload()" />
         </label>
-        <input type="file" id="file" name="file" required onchange="handleFileUpload()">
+        <ul id="file-names" class="file-list"></ul>
+      </div>
 
-        <!-- File Name Display -->
-        <p id="file-name" style="font-size: 16px; color: #4a5568;"></p>
+      <!-- Visualization -->
+      <div class="card">
+        <h2>Visualize Data</h2>
+        <select id="query" name="query" class="custom-select" required>
+          <option value="Attended">📊 Attended</option>
+          <option value="Member Status">🔑 Member Status</option>
+          <option value="Sales">💰 Sales</option>
+        </select>
+        <button type="button" class="submit-button" onclick="generateVisualization()">Generate Visualization</button>
+      </div>
+    </div>
+  </main>
 
-        <!-- Query Selection with Custom Styling -->
-        <div class="custom-select-wrapper" style="text-align: center;">
-            <label for="query">Select Query:</label>
-            <select id="query" name="query" class="custom-select" required>
-                <option value="Attended">Attended</option>
-                <option value="Member Status">Member Status</option>
-                <option value="Sales">Sales</option>
-            </select>
-        </div>
+  <footer>
+    <p>© 2025 Waltham Chamber of Commerce. All rights reserved.</p>
+  </footer>
 
-        <!-- Multi-Event Selection -->
-        <div id="event_selection" style="display: none;">
-            <label for="events">Events for Comparison:</label>
-            <ul id="events"></ul>
-        </div>
+  <!-- Modal for Visualization -->
+  <div id="visualization-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="modal-body">
+        <h2>Visualization</h2>
+        <div id="loader" class="loader" style="display: none;"></div>
+        <img id="visualization-image" src="" alt="Chart Visualization" style="max-width: 100%; height: auto; display: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
+      </div>
+    </div>
+  </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="custom-button">Generate Visualization</button>
-    </form>
+  <script>
+    // On page load, fetch existing files
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshFiles();
+    });
 
-    <script>
-        async function handleFileUpload() {
-            const fileInput = document.getElementById('file');
-            const file = fileInput.files[0];
-            const fileNameDisplay = document.getElementById('file-name');
-            
-            // Display the file name below the file input
-            if (file) {
-                fileNameDisplay.textContent = `Selected file: ${file.name}`;
-            }
+    // Retrieve /files and populate multi-select
+    async function refreshFiles() {
+      try {
+        const response = await fetch('/files');
+        if (!response.ok) throw new Error('Failed to fetch files.');
+        const files = await response.json();
+        const existingFileSelect = document.getElementById('existing-file-select');
+        existingFileSelect.innerHTML = '';
 
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            const data = await response.json();
-
-            const eventSelection = document.getElementById('event_selection');
-            const eventsList = document.getElementById('events');
-
-            if (data.multiple_events) {
-                eventSelection.style.display = 'block';
-                eventsList.innerHTML = ''; // Clear any existing events
-
-                data.events.forEach(event => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = event;
-                    eventsList.appendChild(listItem);
-                });
-            } else {
-                eventSelection.style.display = 'none';
-            }
+        if (files.length === 0) {
+          const option = document.createElement('option');
+          option.textContent = 'No files available.';
+          option.disabled = true;
+          existingFileSelect.appendChild(option);
+          return;
         }
-    </script>
+
+        files.forEach(fname => {
+          const option = document.createElement('option');
+          option.value = fname;
+          option.textContent = fname;
+          existingFileSelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error("Error loading files:", err);
+        alert('Error loading files. Please try again later.');
+      }
+    }
+
+    // Display chosen file names for new uploads
+    document.getElementById('files').addEventListener('change', e => {
+      const files = e.target.files;
+      const fileNamesDisplay = document.getElementById('file-names');
+      fileNamesDisplay.innerHTML = ''; // Clear previous entries
+
+      if (files.length > 0) {
+        Array.from(files).forEach(file => {
+          const li = document.createElement('li');
+          li.textContent = file.name;
+          fileNamesDisplay.appendChild(li);
+        });
+      }
+    });
+
+    // Handle file uploads
+    async function handleFileUpload() {
+      const fileInput = document.getElementById('files');
+      const files = fileInput.files;
+      const formData = new FormData();
+
+      if (files.length === 0) {
+        alert('No files selected for upload.');
+        return;
+      }
+
+      Array.from(files).forEach(file => {
+        formData.append('files', file);
+      });
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Upload failed.');
+
+        const data = await response.json();
+        if (data.success) {
+          alert('Files uploaded successfully.');
+          fileInput.value = ''; // Reset file input
+          document.getElementById('file-names').innerHTML = ''; // Clear file names list
+          refreshFiles(); // Refresh existing files list
+        } else {
+          throw new Error(data.error || 'Upload failed.');
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert('Error uploading files: ' + err.message);
+      }
+    }
+
+    // Rename selected file
+    async function renameSelectedFile() {
+      const fileSelect = document.getElementById('existing-file-select');
+      const newFilenameInput = document.getElementById('new-filename');
+      const selectedOptions = Array.from(fileSelect.selectedOptions);
+
+      if (selectedOptions.length !== 1) {
+        alert("Please select exactly one file to rename.");
+        return;
+      }
+
+      const oldFilename = selectedOptions[0].value;
+      const newFilename = newFilenameInput.value.trim();
+
+      if (!newFilename) {
+        alert("Please enter a new filename.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('old_filename', oldFilename);
+      formData.append('new_filename', newFilename);
+
+      try {
+        const res = await fetch('/rename_file', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) throw new Error('Rename request failed.');
+
+        const data = await res.json();
+        if (data.success) {
+          alert(`Renamed from "${oldFilename}" to "${newFilename}"`);
+          newFilenameInput.value = '';
+          refreshFiles();
+        } else {
+          throw new Error(data.error || 'Rename failed.');
+        }
+      } catch (err) {
+        console.error("Rename error:", err);
+        alert('Error renaming file: ' + err.message);
+      }
+    }
+
+    // Delete selected file(s)
+    async function deleteSelectedFile() {
+      const fileSelect = document.getElementById('existing-file-select');
+      const selectedOptions = Array.from(fileSelect.selectedOptions);
+
+      if (selectedOptions.length === 0) {
+        alert("Please select at least one file to delete.");
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to delete ${selectedOptions.length} file(s)?`)) {
+        return;
+      }
+
+      try {
+        const deletePromises = selectedOptions.map(async (option) => {
+          const formData = new FormData();
+          formData.append('filename', option.value);
+
+          const res = await fetch('/delete_file', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!res.ok) throw new Error(`Failed to delete ${option.value}`);
+          const data = await res.json();
+
+          if (!data.success) throw new Error(data.error || `Failed to delete ${option.value}`);
+        });
+
+        await Promise.all(deletePromises);
+        alert('Selected file(s) deleted successfully.');
+        refreshFiles();
+      } catch (err) {
+        console.error("Delete error:", err);
+        alert('Error deleting files: ' + err.message);
+      }
+    }
+
+    // Generate visualization
+    async function generateVisualization() {
+      const query = document.getElementById('query').value;
+      const fileSelect = document.getElementById('existing-file-select');
+      const selectedFiles = Array.from(fileSelect.selectedOptions).map(opt => opt.value);
+
+      if (selectedFiles.length === 0) {
+        alert('Please select at least one file to visualize.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('query', query);
+      selectedFiles.forEach(file => formData.append('filenames', file));
+
+      // Show modal and loader
+      const modal = document.getElementById('visualization-modal');
+      const loader = document.getElementById('loader');
+      const vizImage = document.getElementById('visualization-image');
+
+      modal.style.display = 'flex';
+      loader.style.display = 'block';
+      vizImage.style.display = 'none';
+      vizImage.src = '';
+
+      try {
+        const response = await fetch('/visualize', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.url) {
+            vizImage.src = data.url + `?t=${new Date().getTime()}`; // Prevent caching
+            vizImage.onload = () => {
+              loader.style.display = 'none';
+              vizImage.style.display = 'block';
+            };
+          } else {
+            throw new Error(data.error || 'Visualization failed.');
+          }
+        } else {
+          const errorText = await response.text();
+          throw new Error(errorText || 'Visualization failed.');
+        }
+      } catch (err) {
+        console.error("Visualization error:", err);
+        loader.style.display = 'none';
+        alert('Error generating visualization: ' + err.message);
+        modal.style.display = 'none';
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      const modal = document.getElementById('visualization-modal');
+      modal.style.display = 'none';
+    }
+
+    // Close modal when clicking outside the modal content
+    window.onclick = function(event) {
+      const modal = document.getElementById('visualization-modal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 </html>

@@ -1,109 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+  <meta charset="UTF-8">
+  <title>Waltham Chamber Login</title>
+  <style>
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #a8edea, #fed6e3, #f9f9fb, #fdfaf3);
+      background-size: 400% 400%;
+      animation: gradientShift 12s ease infinite;
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh;
+      margin: 0;
+      color: #333;
+    }
 
-        .login-container {
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-        }
+    .login-container {
+      background-color: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+      padding: 2.5rem 3rem;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      transition: transform 0.3s;
+    }
+    .login-container:hover {
+      transform: translateY(-3px);
+    }
 
-        .login-container h2 {
-            margin-bottom: 1.5rem;
-            color: #333333;
-            text-align: center;
-        }
+    h2 {
+      margin-bottom: 1.5rem; 
+      text-align: center; 
+      font-size: 2rem; 
+      font-weight: 700; 
+      color: #333;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+    }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #555;
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555555;
-        }
+    .login-button {
+      width: 100%;
+      padding: 0.8rem;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+    .login-button:hover {
+      background-color: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
 
-        .form-group input {
-            width: 93%;
-            padding: 0.8rem;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
+    .centered {
+      text-align: center;
+      color: red;
+      margin-bottom: 1rem;
+    }
 
-        .form-group input:focus {
-            border-color: #007BFF;
-            outline: none;
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 0.8rem;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .login-button:hover {
-            background-color: #0056b3;
-        }
-
-        .forgot-password {
-            display: block;
-            margin-top: 1rem;
-            text-align: center;
-            color: #007BFF;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-        .centered {
-            text-align: center;
-        }
-    </style>
+    @media screen and (max-width: 480px) {
+      .login-container {
+        padding: 2rem 1.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        {% if error %}
-            <h3 class="centered">{{error}}</h3>
-        {% endif %}
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="login-button">Login</button>
-            <!-- <a href="#" class="forgot-password">Forgot your password?</a> -->
-        </form>
-    </div>
+  <div class="login-container">
+    <h2>Welcome</h2>
+    {% if error %}
+      <h3 class="centered">{{ error }}</h3>
+    {% endif %}
+    <form action="/login" method="POST">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required />
+      </div>
+      <button class="login-button" type="submit">Login</button>
+    </form>
+  </div>
 </body>
 </html>
